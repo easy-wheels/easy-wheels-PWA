@@ -1,0 +1,15 @@
+
+.markerIcon {
+    cursor: pointer;
+    width:49px;
+    height: 64px;
+    top: -64px;
+    left: -24.5px;
+    margin: 0;
+    padding: 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+}
