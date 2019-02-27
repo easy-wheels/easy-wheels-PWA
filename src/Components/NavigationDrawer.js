@@ -24,9 +24,10 @@ import Avatar from "@material-ui/core/Avatar";
 import CreateIcon from '@material-ui/icons/Create';
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import {Link} from "react-router-dom";
 import MenuList from "@material-ui/core/MenuList";
 import GoogleMapsContainer from "./Maps/Maps";
+import CoinPurse from './CoinPurse.js';
+import {BrowserRouter as Router, Route, Switch, Link} from "react-router-dom";
 
 
 const drawerWidth = 280;
@@ -200,7 +201,7 @@ class NavigationDrawer extends React.Component {
                         <Divider/>
                         <MenuList>
 
-                            <ListItem button key="travell" component={Link} to="/mainView/tasks">
+                            <ListItem button key="travell" component={Link} to="/mainView">
                                 <ListItemIcon><DirectionsCarIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Programa tu vaje"/>
@@ -210,7 +211,7 @@ class NavigationDrawer extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary="Programa tu semana"/>
                             </ListItem>
-                            <ListItem button key="tasks" component={Link} to="/mainView/tasks">
+                            <ListItem button key="tasks" component={Link} to="/mainView/coinpurse">
                                 <ListItemIcon><AtachMoneyIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Monedero"/>
@@ -227,8 +228,7 @@ class NavigationDrawer extends React.Component {
                     </Drawer>
                     <main className={classes.content}>
                         <div className={classes.toolbar}/>
-
-                        <GoogleMapsContainer/>
+                        <CoinPurse/>
 
                     </main>
                 </div>
