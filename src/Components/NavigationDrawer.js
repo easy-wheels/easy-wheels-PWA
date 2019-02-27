@@ -31,6 +31,8 @@ import MapView from './Maps/Maps';
 import AddPayment from './AddPayment.js';
 import History from './History';
 import AddMoney from './AddMoney';
+import ScheduleTripsView from "./ScheduledTripsView";
+import CreateAndEditView from "./CreateAndEditView";
 
 
 const drawerWidth = 280;
@@ -209,7 +211,7 @@ class NavigationDrawer extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary="Programa tu vaje"/>
                             </ListItem>
-                            <ListItem button key="week" component={Link} to="/mainView/tasks">
+                            <ListItem button key="week" component={Link} to="/mainView/scheduledTrips">
                                 <ListItemIcon><DateRangeIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Programa tu semana"/>
@@ -235,6 +237,8 @@ class NavigationDrawer extends React.Component {
                         <Route exact path={this.props.match.url + "/"} component={MapView}/>
 
                         <Route path={this.props.match.url +"/coinpurse/addpayment" }component={AddPayment}/>
+                        <Route exact path={this.props.match.url +"/scheduledTrips" }component={ScheduleTripsView}/>
+                        <Route exact path={this.props.match.url +"/scheduledTrips/create" }component={CreateAndEditView}/>
                         <Route path={this.props.match.url +"/coinpurse/addmoney"} component={AddMoney}/>
                         <Route path={this.props.match.url +"/coinpurse/history"} component={History}/>
 
