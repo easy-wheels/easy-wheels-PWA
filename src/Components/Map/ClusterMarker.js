@@ -3,7 +3,7 @@ import compose from 'recompose/compose';
 import defaultProps from 'recompose/defaultProps';
 import withPropsOnChange from 'recompose/withPropsOnChange';
 import pure from 'recompose/pure';
-import { Motion, spring } from 'react-motion';
+import {Motion, spring} from 'react-motion';
 import clusterMarkerStyles from './ClusterMarker.sass';
 
 export const clusterMarker = ({
