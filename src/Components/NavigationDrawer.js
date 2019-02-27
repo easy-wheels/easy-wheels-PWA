@@ -25,9 +25,12 @@ import CreateIcon from '@material-ui/icons/Create';
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import MenuList from "@material-ui/core/MenuList";
-import GoogleMapsContainer from "./Maps/Maps";
 import CoinPurse from './CoinPurse.js';
-import {BrowserRouter as Router, Route, Switch, Link} from "react-router-dom";
+import {Route, Link} from "react-router-dom";
+import MapView from './Map/Map';
+import AddPayment from './AddPayment.js';
+import History from './History';
+import AddMoney from './AddMoney';
 
 
 const drawerWidth = 280;
@@ -201,7 +204,7 @@ class NavigationDrawer extends React.Component {
                         <Divider/>
                         <MenuList>
 
-                            <ListItem button key="travell" component={Link} to="/mainView">
+                            <ListItem button key="travell" component={Link} to="/mainView/">
                                 <ListItemIcon><DirectionsCarIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Programa tu vaje"/>
@@ -228,7 +231,12 @@ class NavigationDrawer extends React.Component {
                     </Drawer>
                     <main className={classes.content}>
                         <div className={classes.toolbar}/>
-                        <CoinPurse/>
+                        <Route exact path={this.props.match.url + "/coinpurse"} component={CoinPurse}/>
+                        <Route exact path={this.props.match.url + "/"} component={MapView}/>
+
+                        <Route path={this.props.match.url +"/coinpurse/addpayment" }component={AddPayment}/>
+                        <Route path={this.props.match.url +"/coinpurse/addmoney"} component={AddMoney}/>
+                        <Route path={this.props.match.url +"/coinpurse/history"} component={History}/>
 
                     </main>
                 </div>
