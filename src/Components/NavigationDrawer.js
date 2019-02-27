@@ -27,7 +27,7 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import MenuList from "@material-ui/core/MenuList";
 import CoinPurse from './CoinPurse.js';
 import {Route, Link} from "react-router-dom";
-import MapView from './Map/Map';
+import MapView from './Maps/Maps';
 import AddPayment from './AddPayment.js';
 import History from './History';
 import AddMoney from './AddMoney';
