@@ -5,10 +5,12 @@
   "dependencies": {
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.2",
+    "classnames": "latest",
     "google-map-react": "^1.1.2",
     "google-maps-react": "^2.0.2",
     "material-ui": "^0.20.2",
     "node-sass": "^4.11.0",
+    "prop-types": "latest",
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
     "react-motion": "^0.5.2",
@@ -30,5 +32,8 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "react-router-dom": "^4.3.1"
+  }
 }

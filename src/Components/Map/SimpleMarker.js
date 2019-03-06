@@ -1,8 +1,8 @@
 import React from 'react';
 import compose from 'recompose/compose';
 import defaultProps from 'recompose/defaultProps';
-import { Motion } from 'react-motion';
-import { clusterMarkerHOC } from './ClusterMarker.js';
+import {Motion} from 'react-motion';
+import {clusterMarkerHOC} from './ClusterMarker.js';
 import simpleMarkerStyles from './SimpleMarker.sass';
 
 export const simpleMarker = ({
