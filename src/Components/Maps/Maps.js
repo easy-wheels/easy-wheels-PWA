@@ -2,6 +2,7 @@ import React from 'react';
 import {GoogleApiWrapper, InfoWindow, Map, Marker} from 'google-maps-react';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import './Maps.css';
 
 class GoogleMapsContainer extends React.Component {
     constructor(props) {
@@ -50,16 +51,23 @@ class GoogleMapsContainer extends React.Component {
 
     render() {
         if (!this.props.loaded) return <h1>Loading...</h1>;
-        const style = {};
+        const style = {
+                      width: '100vw',
+                      height: '100vh',
+                      'marginLeft': 'auto',
+                      'marginRight': 'auto'
+                  };
         return (
+        <div className='unAbsolute'>
             <Map
                 item
                 xs={12}
                 style={style}
                 google={this.props.google}
                 onClick={this.onMapClick}
+                centerAroundCurrentLocation
                 zoom={14}
-                initialCenter={{lat: 4.782715, lng: -74.042611}}
+
             >
                 <Marker
                     onClick={this.onMarkerClick}
@@ -97,10 +105,11 @@ class GoogleMapsContainer extends React.Component {
                     </Paper>
                 </InfoWindow>
             </Map>
+            </div>
         );
     }
 }
 
 export default GoogleApiWrapper({
-    api: (process.env.GOOGLE_API_KEY_GOES_HERE)
+    apiKey: 'AIzaSyBb23DZ9UPaSVg-W6e-SEXSGSytg1nAPPw'
 })(GoogleMapsContainer)
