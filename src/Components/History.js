@@ -21,21 +21,21 @@ class History extends React.Component{
                         return(
                             <div key={value.date+value.quantity+value.method}>
                                 <ListItem>
-                                <Card style={{width:"90vw"}}>
+                                <Card style={{width:"85%"}}>
                                     <CardContent>
-                                        <Typography color="textSecondary" variant="h7" gutterBottom>
+                                        <Typography color="textSecondary" gutterBottom>
                                              Fecha:
                                         </Typography>
                                         <Typography variant="h6">
                                             {value.date}
                                         </Typography>
-                                        <Typography color="textSecondary" variant="h7" gutterBottom>
+                                        <Typography color="textSecondary" gutterBottom>
                                              Valor:
                                         </Typography>
                                         <Typography variant="h6">
                                         {value.quantity}
                                         </Typography>
-                                        <Typography color="textSecondary" variant="h7" gutterBottom>
+                                        <Typography color="textSecondary" gutterBottom>
                                              Metodo:
                                         </Typography>
                                         <Typography variant="h6">
