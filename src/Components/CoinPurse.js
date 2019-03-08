@@ -4,9 +4,13 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import {Link} from "react-router-dom";
 import Divider from "@material-ui/core/Divider";
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
 
 const Purse = () => (
     <>
+        <Card>
+            <CardContent>
         <Typography variant="subtitle1" >
             Dinero en el monedero:
         </Typography>
@@ -23,11 +27,12 @@ const Purse = () => (
                 Historial de transacciones
             </ListItem>
             <Divider/>
-            <ListItem button component={Link} to="/mainView/coinpurse/addpayment">
-                Agregar metodo de pago
+            <ListItem button component={Link} to="/mainView/coinpurse/mycards">
+                 Mis tarjetas
             </ListItem>
         </List>
-        <Divider/>
+            </CardContent>
+        </Card>
     </>
 )
 
