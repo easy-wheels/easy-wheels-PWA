@@ -102,6 +102,7 @@ const styles = theme => ({
         display: 'flex',
         justifyContent: 'flex-end',
         padding: '0 8px',
+//        minHeight: "44px !important",
         ...theme.mixins.toolbar,
     },
     content: {
