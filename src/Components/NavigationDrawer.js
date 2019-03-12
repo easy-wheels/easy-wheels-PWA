@@ -32,7 +32,11 @@ import MapView from './Maps/Maps';
 import AddPayment from './AddPayment.js';
 import History from './History';
 import AddMoney from './AddMoney';
+import ScheduleTripsView from "./ScheduledTripsView";
+import CreateAndEditView from "./CreateAndEditView";
+import MyCards from "./MyCards";
 import Matches from './Matches';
+
 
 
 const drawerWidth = 280;
@@ -101,6 +105,7 @@ const styles = theme => ({
         display: 'flex',
         justifyContent: 'flex-end',
         padding: '0 8px',
+//        minHeight: "44px !important",
         ...theme.mixins.toolbar,
     },
     content: {
@@ -211,7 +216,7 @@ class NavigationDrawer extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary="Programa tu vaje"/>
                             </ListItem>
-                            <ListItem button key="week" component={Link} to="/mainView/tasks">
+                            <ListItem button key="week" component={Link} to="/mainView/scheduledTrips">
                                 <ListItemIcon><DateRangeIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Programa tu semana"/>
@@ -243,8 +248,11 @@ class NavigationDrawer extends React.Component {
                         <Route exact path={this.props.match.url + "/"} component={MapView}/>
 
                         <Route path={this.props.match.url +"/coinpurse/addpayment" }component={AddPayment}/>
+                        <Route exact path={this.props.match.url +"/scheduledTrips" }component={ScheduleTripsView}/>
+                        <Route exact path={this.props.match.url +"/scheduledTrips/create" }component={CreateAndEditView}/>
                         <Route path={this.props.match.url +"/coinpurse/addmoney"} component={AddMoney}/>
                         <Route path={this.props.match.url +"/coinpurse/history"} component={History}/>
+                        <Route path={this.props.match.url +"/coinpurse/mycards"} component={MyCards}/>
 
                     </main>
                 </div>
