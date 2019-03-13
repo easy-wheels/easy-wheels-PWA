@@ -12,6 +12,7 @@ import Slide from '@material-ui/core/Slide';
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Grid from '@material-ui/core/Grid';
+import MapContainer from './Maps/MapsContainer';
 
 const styles   = theme => ({
     appBar: {
@@ -109,7 +110,7 @@ class TripCard extends React.Component {
                                         <Typography color="textSecondary">
                                             {this.props.trip.day}-{this.props.trip.hour}
                                         </Typography>
-
+                                          <MapContainer className={classes.card}/>
                                     </CardContent>
 
                                 </Card>
