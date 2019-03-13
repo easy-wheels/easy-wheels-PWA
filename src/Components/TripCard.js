@@ -110,7 +110,9 @@ class TripCard extends React.Component {
                                         <Typography color="textSecondary">
                                             {this.props.trip.day}-{this.props.trip.hour}
                                         </Typography>
-                                          <MapContainer className={classes.card}/>
+                                        <div style={{ height: '20vh', alignItems: 'center',width: '100vw', 'marginLeft': '5px', 'marginRight': '5px' }}>
+                                          <MapContainer />
+                                         </div>
                                     </CardContent>
 
                                 </Card>

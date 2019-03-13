@@ -10,10 +10,10 @@ import Grid from '@material-ui/core/Grid';
 
 const styles   = theme => ({
     map: {
-         width: '100%',
-         height: '100%',
-         marginLeft: 'auto',
-         marginRight: 'auto'
+         width: '20vw',
+         height: '20vh',
+         marginLeft: '10px',
+         marginRight: '10px'
     },
 
 
@@ -68,11 +68,11 @@ class GoogleMapsContainer extends React.Component {
         if (!this.props.loaded) return <h1>Loading...</h1>;
 
         return (
-        <Grid wrap="nowrap" item xs={12} sm={6}>
+
            <Map
+           style={{ height: '20vh', width: '40vw', 'marginLeft': '5px', 'marginRight': '5px'}}
            item
            xs={12}
-           className={classes.map}
            google={this.props.google}
            onClick={this.onMapClick}
            centerAroundCurrentLocation
@@ -114,7 +114,7 @@ class GoogleMapsContainer extends React.Component {
            </InfoWindow>
        </Map>
 
-        </Grid>
+
 
 
 
