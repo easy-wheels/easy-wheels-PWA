@@ -11,6 +11,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
+import Grid from '@material-ui/core/Grid';
 
 const styles   = theme => ({
     appBar: {
@@ -25,6 +26,11 @@ const styles   = theme => ({
     title: {
         fontSize: 14,
     },
+    content: {
+        flexGrow: 1,
+        padding: theme.spacing.unit * 3,
+    },
+
 });
 
 function Transition(props) {
@@ -85,6 +91,32 @@ class TripCard extends React.Component {
                             </Button>
                         </Toolbar>
                     </AppBar>
+                    <main className={classes.content}>
+                        <Grid container   spacing={24}>
+                            <Grid wrap="nowrap" item xs={12} sm={6}>
+                                <Card onClick={this.handleClickOpen} >
+                                    <CardContent className={classes.card}>
+                                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                                            Detalles del Viaje
+                                        </Typography>
+                                        <Typography variant="h5" component="h2">
+                                            {this.props.trip.driver ?<> Viajas como conductor </>:<>Viajas como pasajero</>}
+                                        </Typography>
+
+                                        <Typography component="p">
+                                            Tu destino es {this.props.trip.destination.desc}
+                                        </Typography>
+                                        <Typography color="textSecondary">
+                                            {this.props.trip.day}-{this.props.trip.hour}
+                                        </Typography>
+
+                                    </CardContent>
+
+                                </Card>
+
+                            </Grid>
+                        </Grid>
+                    </main>
 
                 </Dialog>
             </>
