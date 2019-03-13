@@ -3,3 +3,32 @@
     margin-left: -24px;
     margin-top: -24px;
 }
+
+.floating-panel {
+    position: absolute;
+    margin-top: 30px;
+    margin-left: 35%;
+    z-index: 5;
+    text-align: center;
+    align-items: center;
+    padding: 5px 5px 5px 10px;
+    min-width: 180px;
+}
+
+.floating-button {
+    position: absolute !important;
+    bottom: 25px !important;
+    z-index: 5;
+    width: 15%;
+    height: 10%;
+}
+
+.floating-button-conductor {
+    position: absolute !important;
+    bottom: 25px !important;
+    left: 21%;
+    z-index: 5;
+    width: 15%;
+    height: 10%;
+
+}
