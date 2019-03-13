@@ -22,6 +22,7 @@ import AtachMoneyIcon from '@material-ui/icons/AttachMoney';
 import DirectionsCarIcon from '@material-ui/icons/DirectionsCar';
 import Avatar from "@material-ui/core/Avatar";
 import CreateIcon from '@material-ui/icons/Create';
+import MatchIcon from '@material-ui/icons/SupervisorAccount';
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import MenuList from "@material-ui/core/MenuList";
@@ -35,6 +36,7 @@ import ScheduleTripsView from "./ScheduledTripsView";
 import CreateAndEditView from "./CreateAndEditView";
 import MyCards from "./MyCards";
 import NewUser from "./NewUser/NewUser";
+import Matches from './Matches';
 
 
 const drawerWidth = 280;
@@ -224,6 +226,11 @@ class NavigationDrawer extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary="Monedero"/>
                             </ListItem>
+                            <ListItem button key="tasks" component={Link} to="/mainView/matches">
+                                <ListItemIcon><MatchIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary="Viajes"/>
+                            </ListItem>
                             <ListItem button key="sign-out" component={Link} to="/mainView/tasks">
                                 <ListItemIcon><LaunchIcon/>
                                 </ListItemIcon>
@@ -237,6 +244,7 @@ class NavigationDrawer extends React.Component {
                     <main className={classes.content}>
                         <div className={classes.toolbar}/>
                         <Route exact path={this.props.match.url + "/coinpurse"} component={CoinPurse}/>
+                        <Route exact path={this.props.match.url + "/matches"} component={Matches}/>
                         <Route exact path={this.props.match.url + "/"} component={MapView}/>
 
                         <Route path={this.props.match.url +"/coinpurse/addpayment" } component={AddPayment}/>
