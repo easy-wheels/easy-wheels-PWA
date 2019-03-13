@@ -1,0 +1,23 @@
+.paper {
+    width: 35%;
+    min-width: 250px;
+    max-width: 350px;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 25px 25px 25px 25px;
+}
+
+.img {
+    with: 100px;
+    height: 100px;
+    margin: 10px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+}
