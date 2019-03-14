@@ -31,6 +31,9 @@ const styles   = theme => ({
         flexGrow: 1,
         padding: theme.spacing.unit * 3,
     },
+    unAbsolute: {
+          position: 'static',
+      }
 
 });
 
@@ -110,7 +113,7 @@ class TripCard extends React.Component {
                                         <Typography color="textSecondary">
                                             {this.props.trip.day}-{this.props.trip.hour}
                                         </Typography>
-                                        <div style={{ height: '20vh', alignItems: 'center',width: '100vw', 'marginLeft': '5px', 'marginRight': '5px' }}>
+                                        <div className={classes.unAbsolute}>
                                           <MapContainer />
                                          </div>
                                     </CardContent>

@@ -70,7 +70,7 @@ class GoogleMapsContainer extends React.Component {
         return (
 
            <Map
-           style={{ height: '20vh', width: '40vw', 'marginLeft': '5px', 'marginRight': '5px'}}
+           style={{ height: '20vh', 'marginLeft': '5px', 'marginRight': '5px',position:'fixed'}}
            item
            xs={12}
            google={this.props.google}
