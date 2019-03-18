@@ -1,18 +1,24 @@
-.unAbsolute {
+.center-map {
     position: fixed;
     margin-left: -24px;
     margin-top: -24px;
 }
 
+.unAbsolute {
+    position: fixed;
+}
+
+.position-default {
+    position: unset;
+}
+
 .floating-panel {
     position: absolute;
-    margin-top: 30px;
-    margin-left: 35%;
+    margin-top: 70px;
     z-index: 5;
     text-align: center;
-    align-items: center;
     padding: 5px 5px 5px 10px;
-    min-width: 180px;
+    min-width: 350px;
 }
 
 .floating-button {
@@ -30,5 +36,10 @@
     z-index: 5;
     width: 15%;
     height: 10%;
+}
 
+.center-loading {
+    position: absolute;
+    right: 45%;
+    bottom: 48%;
 }
