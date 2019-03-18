@@ -1,13 +1,14 @@
 import React from 'react';
-import {GoogleApiWrapper, InfoWindow, Map, Marker, Polyline} from 'google-maps-react';
+import {GoogleApiWrapper, InfoWindow, makeCancelable, Map, Marker, Polyline} from 'google-maps-react';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import SearchBar from "./SearchBar";
-import {MuiPickersUtilsProvider, DatePicker} from 'material-ui-pickers';
-import DateFnsUtils from '@date-io/date-fns';
 import 'date-fns';
 import './Maps.css';
+import {DatePicker, MuiPickersUtilsProvider} from "material-ui-pickers";
+import DateFnsUtils from "@date-io/date-fns";
+import SearchBar from "./SearchBar";
 import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 class MapsContainer extends React.Component {
 
@@ -17,16 +18,23 @@ class MapsContainer extends React.Component {
             showingInfoWindow: false,
             activeMarker: {},
             selectedPlace: {},
-            pathCoords: [],
+            pathCoordinates: [],
             position: null,
-            dueDate: new Date()
+            dueDate: new Date(),
+            university: {lat: 4.782715, lng: -74.042611}
         };
         // binding this to event-handler functions
         this.onMarkerClick = this.onMarkerClick.bind(this);
         this.onMapClick = this.onMapClick.bind(this);
-        this.centerMoved = this.centerMoved.bind(this);
+
+        // Other binds
+        this.setRefInput = this.setRefInput.bind(this);
+        this.setCurrentPosition = this.setCurrentPosition.bind(this);
+
+        this.setDirectionRoute = this.setDirectionRoute.bind(this)
     }
 
+    // Event handlers
     onMarkerClick = (props, marker, e) => {
         this.setState({
             selectedPlace: props,
@@ -47,28 +55,42 @@ class MapsContainer extends React.Component {
             activeMarker: null,
             showingInfoWindow: false
         });
+
+    //Set aux functions
+    setCurrentPosition(position) {
+        const latLng = {lat: position.coords.latitude, lng: position.coords.longitude};
+        // this.reverseGeocode(latLng);
+        this.setState({userPosition: latLng, position: latLng});
+    }
+    setRefInput(ref) {
+        this.autocomplete = ref;
+    }
+
+    //Map functions
     moveMarker = (props, marker, coord) => {
-        console.log(marker);
-        console.log(coord);
         const {latLng} = coord;
         const lat = latLng.lat();
         const lng = latLng.lng();
-        this.setState({position: {lat, lng}});
-        console.log({lat, lng});
-        console.log(marker);
+        this.reverseGeocode(latLng);
+        this.setState({userPosition: {lat, lng}});
+
     };
 
-    componentDidMount() {
-        this.renderAutoComplete();
+    reverseGeocode(latLng) {
+        const {google} = this.props;
+        const geocoder = new google.maps.Geocoder;
+        geocoder.geocode({'location': latLng}, (results, status) => {
+            if (status === 'OK') {
+                if (results[0]) {
+                    this.autocomplete.value = results[0].formatted_address;
 
-    }
-
-    componentDidUpdate(prevProps) {
-        if (this.props !== prevProps.map) this.renderAutoComplete();
-    }
-
-    onSubmit(e) {
-        e.preventDefault();
+                } else {
+                    this.autocomplete.value = "Posición desconocida";
+                }
+            } else {
+                this.autocomplete.value = "Posición desconocida";
+            }
+        });
     }
 
     renderAutoComplete() {
@@ -79,29 +101,72 @@ class MapsContainer extends React.Component {
         const autocomplete = new google.maps.places.Autocomplete(this.autocomplete);
         autocomplete.bindTo('bounds', map);
 
+        // Set initial restrict to the greater list of countries.
+        autocomplete.setComponentRestrictions({'country': ['co']});
+
+        // Specify only the data fields that are needed.
+        autocomplete.setFields(['address_components', 'geometry', 'icon', 'name']);
+
         autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace();
 
-            if (!place.geometry) return;
+            if (!place.geometry){
+                // User entered the name of a Place that was not suggested and
+                // pressed the Enter key, or the Place Details request failed.
+                window.alert("No hay detalles sobre: '" + place.name + "'");
+                return;
+            }
 
             if (place.geometry.viewport) map.fitBounds(place.geometry.viewport);
             else {
                 map.setCenter(place.geometry.location);
-                map.setZoom(18);
+                map.setZoom(17);
             }
 
-            this.setState({position: place.geometry.location});
+            this.setState({position: place.geometry.location, userPosition: place.geometry.location});
         });
     }
 
-    centerMoved(mapProps, map) {
-        const coord = {lat: map.getCenter().lat(), lng: map.getCenter().lng()};
-        this.setState({position: coord})
+    setDirectionRoute(){
+        const {google, map} = this.props;
+        if (!google || !map) return;
+        const directionsService = new google.maps.DirectionsService();
+        const directionsDisplay = new google.maps.DirectionsRenderer();
+        directionsDisplay.setMap(map);
+        directionsService.route({
+            origin: this.state.userPosition,
+            destination: this.state.university,
+            travelMode: 'DRIVING',
+            drivingOptions: {
+                departureTime: this.state.dueDate
+            }
+        }, (response, status) => {
+            if (status === 'OK') {
+                directionsDisplay.setDirections(response);
+                const overViewCoords = response.routes[0].overview_path;
+                this.setState({pathCoordinates: overViewCoords});
+                console.log(response);
+            } else {
+                window.alert('Directions request failed due to ' + status);
+            }
+        });
+        this.setState({loadV:true})
     }
 
+    //React component functions
+    componentDidMount() {
+        this.renderAutoComplete();
+        if (navigator && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(this.setCurrentPosition)
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.map !== prevProps.map) this.renderAutoComplete();
+    }
 
     render() {
-        if (!this.props.loaded) return <h1>Loading...</h1>;
+
         const style = {
             width: '100vw',
             height: '100vh',
@@ -121,33 +186,38 @@ class MapsContainer extends React.Component {
                             onChange={date => this.setState({dueDate: date})}
                         />
                     </MuiPickersUtilsProvider>
-                    <form onSubmit={this.onSubmit}>
-                        <SearchBar ref={ref => (this.autocomplete = ref)}/>
+                    <form onSubmit={e => e.preventDefault()}>
+                        <SearchBar autocomplete={this.setRefInput}/>
                     </form>
+                    <Button onClick={this.setDirectionRoute}> </Button>
                 </Paper>
-                <div className='unAbsolute'>
+                <div className='center-map'>
                     <Map
                         item
                         xs={12}
                         style={style}
                         google={this.props.google}
                         onClick={this.onMapClick}
-                        center={this.state.position}
                         zoom={17}
-                        onDragend={this.centerMoved}
+                        center={this.state.position}
+                        centerAroundCurrentLocation={false}
+
                     >
                         <Marker
                             onClick={this.onMarkerClick}
                             title={'Escuela colombiana de ingenieria Julio Garavito'}
-                            position={{lat: 4.782715, lng: -74.042611}}
+                            position={this.state.university}
                             name={'Escuela colombiana de ingenieria Julio Garavito'}
                             description={'AK 45 #205-59 Bogota\nInstitucion universitaria'}
                         />
                         <Marker
                             onClick={this.onMarkerClick}
-                            title={'Su posicion'}
-                            position={this.state.position}
-                            name={'Su posicion'}
+                            title={'Si posicion'}
+                            position={this.state.userPosition}
+                            name={'Su posición'}
+                            description={'Indique su ubicacion actual arrastrando el marcador'}
+                            draggable={true}
+                            onDragend={this.moveMarker}
                         />
                         <InfoWindow
                             marker={this.state.activeMarker}
@@ -169,24 +239,35 @@ class MapsContainer extends React.Component {
                             </Paper>
                         </InfoWindow>
                         <Polyline
-                            path={this.state.pathCoords}
+                            path={this.state.pathCoordinates}
                             strokeColor="#0000FF"
-                            strokeOpacity={0.8}
-                            strokeWeight={2}/>
+                            strokeOpacity={0.6}
+                            strokeWeight={8}/>
                     </Map>
                 </div>
-                <Button className="floating-button" variant="outlined" color="primary">
-                    Pasajero
-                </Button>
-                <Button className="floating-button-conductor" variant="outlined" color="primary">
-                    Conductor
-                </Button>
+
             </>
         );
     }
 }
 
 
+const MapWrapper = props => (
+    <div className="unAbsolute">
+        <Map className="map" google={props.google} visible={false}>
+                <MapsContainer {...props} />
+        </Map>
+    </div>
+);
+
+const LoadingContainer = (props) => (
+    <div className="center-loading">
+        <CircularProgress size={120} thickness={3.8}/>
+    </div>
+)
+
 export default GoogleApiWrapper({
-    apiKey: 'AIzaSyBb23DZ9UPaSVg-W6e-SEXSGSytg1nAPPw'
-})(MapsContainer)
+    apiKey: 'AIzaSyBb23DZ9UPaSVg-W6e-SEXSGSytg1nAPPw',
+    language: "es",
+    LoadingContainer: LoadingContainer
+})(MapWrapper)
