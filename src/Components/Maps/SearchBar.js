@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from 'prop-types';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { withStyles } from '@material-ui/core/styles';
-import InputBase from "@material-ui/core/InputBase";
 import SearchIcon from '@material-ui/icons/Search';
 import Input from "@material-ui/core/Input";
 
@@ -14,16 +13,16 @@ const styles = theme => ({
         '&:hover': {
             backgroundColor: fade(theme.palette.common.white, 0.25),
         },
-        marginRight: theme.spacing.unit * 2,
+        marginRight: theme.spacing.unit,
         marginLeft: 0,
         width: '100%',
         [theme.breakpoints.up('sm')]: {
-            marginLeft: theme.spacing.unit * 3,
+            marginLeft: theme.spacing.unit,
             width: 'auto',
         },
     },
     searchIcon: {
-        width: theme.spacing.unit * 9,
+        width: theme.spacing.unit * 4,
         height: '100%',
         position: 'absolute',
         pointerEvents: 'none',
@@ -39,11 +38,11 @@ const styles = theme => ({
         paddingTop: theme.spacing.unit,
         paddingRight: theme.spacing.unit,
         paddingBottom: theme.spacing.unit,
-        paddingLeft: theme.spacing.unit * 10,
+        paddingLeft: theme.spacing.unit * 4,
         transition: theme.transitions.create('width'),
         width: '100%',
         [theme.breakpoints.up('md')]: {
-            width: 200,
+            width: 320,
         },
     }
 });
@@ -58,7 +57,8 @@ function SearchBar(props) {
             <Input
                 placeholder="Search…"
                 type="text"
-                ref={props.ref}
+                inputRef={ref => (props.autocomplete(ref))}
+
                 classes={{
                     root: classes.inputRoot,
                     input: classes.inputInput,
