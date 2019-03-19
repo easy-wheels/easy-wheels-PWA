@@ -44,6 +44,6 @@
     bottom: 48%;
 }
 
-.map-container {
-    position: fixed !important
+.container {
+    position: initial !important
 }

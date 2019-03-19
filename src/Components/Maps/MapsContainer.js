@@ -69,50 +69,51 @@ class GoogleMapsContainer extends React.Component {
 
         return (
 
-           <Map
-           style={{ height: '20vh', 'marginLeft': '5px', 'marginRight': '5px',position:'fixed'}}
-           item
-           xs={12}
-           google={this.props.google}
-           onClick={this.onMapClick}
-           centerAroundCurrentLocation
-           zoom={14}>
-           <Marker
-               onClick={this.onMarkerClick}
-               title={'Escuela colombiana de ingenieria Julio Garavito'}
-               position={{lat: 4.782715, lng: -74.042611}}
-               name={'Escuela colombiana de ingenieria Julio Garavito'}
-               description={'AK 45 #205-59 Bogota\nInstitucion universitaria'}
-           />
-           <Marker
-               onClick={this.onMarkerClick}
-               title={'Si posicion'}
-               position={this.state.userPosition}
-               name={'Su posicion'}
-               description={'Indique su ubicacion actual arrastrando el indicador'}
-               draggable={true}
-               onDragend={this.moveMarker}
-           />
-           <InfoWindow
-               marker={this.state.activeMarker}
-               visible={this.state.showingInfoWindow}
-               onClose={this.onInfoWindowClose}
-           >
-               <Paper>
-                   <Typography
-                       variant='headline'
-                       component='h4'
-                   >
-                       {this.state.selectedPlace.name}
-                   </Typography>
-                   <Typography
-                       component='p'
-                   >
-                       {this.state.selectedPlace.description}
-                   </Typography>
-               </Paper>
-           </InfoWindow>
-       </Map>
+               <Map
+               style={{ height: '20vh', 'marginLeft': '5px', 'marginRight': '5px',position:'fixed'}}
+               item
+               xs={12}
+               className="container"
+               google={this.props.google}
+               onClick={this.onMapClick}
+               centerAroundCurrentLocation
+               zoom={14}>
+               <Marker
+                   onClick={this.onMarkerClick}
+                   title={'Escuela colombiana de ingenieria Julio Garavito'}
+                   position={{lat: 4.782715, lng: -74.042611}}
+                   name={'Escuela colombiana de ingenieria Julio Garavito'}
+                   description={'AK 45 #205-59 Bogota\nInstitucion universitaria'}
+               />
+               <Marker
+                   onClick={this.onMarkerClick}
+                   title={'Si posicion'}
+                   position={this.state.userPosition}
+                   name={'Su posicion'}
+                   description={'Indique su ubicacion actual arrastrando el indicador'}
+                   draggable={true}
+                   onDragend={this.moveMarker}
+               />
+               <InfoWindow
+                   marker={this.state.activeMarker}
+                   visible={this.state.showingInfoWindow}
+                   onClose={this.onInfoWindowClose}
+               >
+                   <Paper>
+                       <Typography
+                           variant='headline'
+                           component='h4'
+                       >
+                           {this.state.selectedPlace.name}
+                       </Typography>
+                       <Typography
+                           component='p'
+                       >
+                           {this.state.selectedPlace.description}
+                       </Typography>
+                   </Paper>
+               </InfoWindow>
+           </Map>
 
 
 

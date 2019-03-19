@@ -24,6 +24,7 @@ import classNames from 'classnames';
 import Divider from "@material-ui/core/Divider";
 import Chip from "@material-ui/core/Chip";
 import GoogleMapsContainer from "./Maps/MapsContainer";
+import './Maps/Maps.css';
 
 const styles = theme => ({
     card: {
@@ -50,7 +51,10 @@ const styles = theme => ({
         alignItems: 'center',
         display:'flex',
         flexDirection:'row',
+        position:'initial !important'
     },
+
+
 });
 
 
@@ -117,7 +121,10 @@ class TripDetailsDialog extends React.Component {
                             <CardContent className={classes.details}>
                                 <div className={classes.column} />
                                 <div className={classes.column}>
+                                <div  >
                                     <GoogleMapsContainer/>
+                                </div>
+
                                 </div>
                                 <div className={classNames(classes.column, classes.helper)}>
                                     <Typography variant="caption">
