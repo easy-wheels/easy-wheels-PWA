@@ -14,7 +14,7 @@ import Divider from "@material-ui/core/Divider";
 import Chip from "@material-ui/core/Chip";
 import GoogleMapsContainer from "./Maps/MapsContainer";
 import './Maps/Maps.css';
-import MUIDataTable from "mui-datatables";
+import MaterialTable from 'material-table'
 import CustomToolbarSelect from "./CustomToolbarSelect";
 
 const styles = theme => ({
@@ -51,48 +51,7 @@ const styles = theme => ({
 
 
 });
-const columns = [
-    {
-        name: "name",
-        label: "Nombre",
-        options: {
-            filter: false,
-            sort: true,
-        }
-    },
-    {
-        name: "location",
-        label: "Lugar de recogida",
-        options: {
-            filter: false,
-            sort: false,
-        }
-    },
-    {
-        name: "state",
-        label: "Estado",
-        options: {
-            filter: true,
-            sort: true,
-        }
-    },
 
-];
-const data = [
-    ["Camilo rodriguez", "Carrera 19a #159-73", "Sugerido"],
-    ["Andres Valero", "Calle 20 #15-73", "Sugerido"],
-    ["Daniela Catañeda", "Carrera 7 #134-6", "No sugerido"],
-    ["James David", "Carrera 7 #134-6", "No sugerido"],
-];
-
-const options = {
-    print: false,
-    download: false,
-    viewColumns: false,
-    customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
-        <CustomToolbarSelect selectedRows={selectedRows} displayData={displayData} setSelectedRows={setSelectedRows}/>
-    ),
-};
 
 class TripDetailsDialog extends React.Component {
     state = {
@@ -182,13 +141,59 @@ class TripDetailsDialog extends React.Component {
 
                 </Grid>
                 <Grid wrap="nowrap" item xs={12} sm={6}>
-                    <MUIDataTable
-                        title={"Posibles pasajeros"}
-                        data={data}
-                        columns={columns}
-                        options={options}
-                    />
-                </Grid>
+                <MaterialTable
+                  columns={[
+                    { title: 'Nombre', field: 'name' },
+                    { title: 'Direccion de recogida', field: 'pickup' },
+                    { title: 'Estado', field: 'state' },
+                  ]}
+                  data={[
+                    { name: 'Mehmet', surname: 'Baran', birthYear: 1987 },
+                    { name: 'Zerya Betül', surname: 'Baran', birthYear: 1987},
+                  ]}
+                  title="Posibles pasajeros"
+                  detailPanel={[
+                    {
+                      tooltip: 'Detalles de ubicación',
+                      render: rowData => {
+                        return (
+                          <div
+                            style={{
+                              fontSize: 100,
+                              textAlign: 'center',
+                              color: 'white',
+                              backgroundColor: '#43A047',
+                            }}
+                          >
+                            {rowData.name}
+                          </div>
+                        )
+                      },
+                    },
+                    {
+
+                      icon: 'person_add',
+                      tooltip: 'Agregar pasajero',
+                      render: rowData => {
+                        return (
+                          <div
+                            style={{
+                              fontSize: 100,
+                              textAlign: 'center',
+                              color: 'white',
+                              backgroundColor: '#E53935',
+                            }}
+                          >
+                            {rowData.surname}
+                          </div>
+                        )
+                      },
+                    },
+
+                  ]}
+                  onRowClick={(event, rowData, togglePanel) => togglePanel(0)}
+                />
+            </Grid>
             </Grid>
 
 
