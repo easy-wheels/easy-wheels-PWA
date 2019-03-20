@@ -5,7 +5,6 @@ import Typography from '@material-ui/core/Typography';
 import './Maps.css';
 import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
 
 
 const styles   = theme => ({
@@ -52,16 +51,7 @@ class GoogleMapsContainer extends React.Component {
             activeMarker: null,
             showingInfoWindow: false
         });
-    moveMarker = (props, marker,coord) => {
-        console.log(marker);
-        console.log(coord);
-        const { latLng } = coord;
-        const lat = latLng.lat();
-        const lng = latLng.lng();
-        this.setState({position: {lat,lng}});
-        console.log({lat,lng});
-        console.log(marker);
-    };
+
 
     render() {
         const {classes} = this.props;
@@ -70,29 +60,20 @@ class GoogleMapsContainer extends React.Component {
         return (
 
                <Map
-               style={{ height: '20vh', 'marginLeft': '5px', 'marginRight': '5px',position:'fixed'}}
-               item
-               xs={12}
-               className="container"
-               google={this.props.google}
-               onClick={this.onMapClick}
-               centerAroundCurrentLocation
-               zoom={14}>
+                   style={{ height: '20vh', 'marginLeft': '5px', 'marginRight': '5px',position:'fixed'}}
+                   item
+                   xs={12}
+                   className="container"
+                   google={this.props.google}
+                   onClick={this.onMapClick}
+                   centerAroundCurrentLocation
+                   center={{lat: this.props.markerPosition.lat, lng: this.props.markerPosition.lng}}
+                   zoom={14}>
                <Marker
                    onClick={this.onMarkerClick}
-                   title={'Escuela colombiana de ingenieria Julio Garavito'}
-                   position={{lat: 4.782715, lng: -74.042611}}
-                   name={'Escuela colombiana de ingenieria Julio Garavito'}
-                   description={'AK 45 #205-59 Bogota\nInstitucion universitaria'}
-               />
-               <Marker
-                   onClick={this.onMarkerClick}
-                   title={'Si posicion'}
-                   position={this.state.userPosition}
-                   name={'Su posicion'}
-                   description={'Indique su ubicacion actual arrastrando el indicador'}
-                   draggable={true}
-                   onDragend={this.moveMarker}
+                   name={" "}
+                   position={{lat: this.props.markerPosition.lat, lng: this.props.markerPosition.lng}}
+                   description={this.props.markerTitle}
                />
                <InfoWindow
                    marker={this.state.activeMarker}
