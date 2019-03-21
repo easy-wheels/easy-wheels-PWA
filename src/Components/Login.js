@@ -137,6 +137,7 @@ class SignIn extends React.Component {
             if(firebase.isEmailVerified()){
                 this.setState({navigate: true, referrer: "/mainView"});
                 //console.log(firebase.isLoggedIn())
+                this.props.updateLogged(true);
             }else{
                 window.alert("El usuario no ha confirmado email")
             }
