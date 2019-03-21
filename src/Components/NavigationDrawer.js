@@ -37,7 +37,9 @@ import CreateAndEditView from "./CreateAndEditView";
 import MyCards from "./MyCards";
 import NewUser from "./NewUser/NewUser";
 import Matches from './Matches';
+import Firebase from "../Firebase";
 
+const firebase = Firebase.getInstance();
 
 const drawerWidth = 280;
 
@@ -231,7 +233,7 @@ class NavigationDrawer extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary="Viajes"/>
                             </ListItem>
-                            <ListItem button key="sign-out" component={Link} to="/mainView/tasks">
+                            <ListItem button key="sign-out" component={Link} to="/">
                                 <ListItemIcon><LaunchIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Cerrar sesion"/>
