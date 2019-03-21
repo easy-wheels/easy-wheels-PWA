@@ -6,19 +6,32 @@ import user from "../Images/user.svg";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import {Redirect} from "react-router-dom";
+import {Link} from "react-router-dom";
 import "./NewUser.css"
+import Firebase from "../../Firebase.js"
+
+const INITIAL_STATE = {
+    name:"",
+    email:"",
+    password:"",
+    confirmPassword:"",
+    error:null
+};
+
+const firebase = Firebase.getInstance();
+
 
 class NewUser extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {name: "", email: "", password: "", confirmPassword: "", doRedirect: false};
+        this.state = {name: "", email: "", password: "", confirmPassword: "", doRedirect: false, error:null};
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleSubmit(e) {
         e.preventDefault();
-        if (this.state.confirmPassword === this.state.password) {
+       /** if (this.state.confirmPassword === this.state.password) {
             if (localStorage.getItem(this.state.username) === null) {
                 this.createUser();
                 this.setState({name: "", email: "", password: "", confirmPassword: ""});
@@ -28,6 +41,25 @@ class NewUser extends Component {
             }
         } else {
             alert("The password and the confirmation do not make match")
+        }**/
+       const { name, email, password,confirmPassword } = this.state;
+        if(password!==confirmPassword){
+            window.alert("Las constraseñas no son las mismas");
+
+        }else {
+            firebase
+                .doCreateUserWithEmailAndPassword(email, password)
+                .then(authUser => {
+                    firebase.doChangeName(name);
+                    firebase.doEmailVerification();
+                    firebase.doSignOut();
+                    window.alert("Asegurese de confirmar el email");
+                    this.setState({name: "", email: "", password: "", confirmPassword: ""});
+                    this.setState({doRedirect: true})
+                })
+                .catch(error => {
+                    this.setState({error});
+                });
         }
     }
 
@@ -60,8 +92,7 @@ class NewUser extends Component {
                                    onChange={event => this.setState({name: event.target.value})}/>
                         <TextField required label="Email" fullWidth
                                    onChange={event => this.setState({email: event.target.value})}/>
-                        <TextField required label="Username" fullWidth
-                                   onChange={event => this.setState({username: event.target.value})}/>
+
                         <TextField required label="Password" type="password" fullWidth
                                    onChange={event => this.setState({password: event.target.value})}/>
                         <TextField required label="Confirm password" type="password" fullWidth
@@ -69,6 +100,11 @@ class NewUser extends Component {
                         <br/><br/>
                         <Button type="submit" color="primary" variant="contained" fullWidth>
                             Create account
+                        </Button>
+                        <br/>
+                        <br/>
+                        <Button color="primary" variant="contained" fullWidth component={Link} to={"/"}>
+                            Back
                         </Button>
                         {this.state.doRedirect && <Redirect to={"/"}/>}
                     </form>

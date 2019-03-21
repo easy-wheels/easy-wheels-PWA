@@ -37,7 +37,9 @@ import CreateAndEditView from "./CreateAndEditView";
 import MyCards from "./MyCards";
 import NewUser from "./NewUser/NewUser";
 import Matches from './Matches';
+import Firebase from "../Firebase";
 
+const firebase = Firebase.getInstance();
 
 const drawerWidth = 280;
 
@@ -139,6 +141,7 @@ class NavigationDrawer extends React.Component {
 
         return (
             <Fragment>
+                {console.log(firebase.isLoggedIn())}
                 <CssBaseline/>
                 <div className={classes.root}>
                     <AppBar
@@ -189,11 +192,11 @@ class NavigationDrawer extends React.Component {
                                 <ListItemAvatar style={{
                                     left: -5,
                                 }}>
-                                    <Avatar>N</Avatar>
+                                    <Avatar>{firebase.isLoggedIn().displayName.charAt(0).toUpperCase()}</Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
-                                    primary="Nicolas Garcia"
-                                    secondary="nicoga97@gmail.com"
+                                    primary={firebase.isLoggedIn().displayName}
+                                    secondary={firebase.isLoggedIn().email}
                                 />
                                 <ListItemSecondaryAction style={{
                                     position: 'absolute',
@@ -231,7 +234,7 @@ class NavigationDrawer extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary="Viajes"/>
                             </ListItem>
-                            <ListItem button key="sign-out" component={Link} to="/mainView/tasks">
+                            <ListItem button key="sign-out" component={Link} to="/">
                                 <ListItemIcon><LaunchIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Cerrar sesion"/>
