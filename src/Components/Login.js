@@ -1,5 +1,4 @@
 import React from 'react';
-import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import FormControl from '@material-ui/core/FormControl';
@@ -11,6 +10,8 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Redirect from "react-router-dom/Redirect";
+import {Link} from "react-router-dom";
+import logo from "./Images/car-logo.svg";
 
 
 const styles = theme => ({
@@ -46,7 +47,7 @@ const styles = theme => ({
     bigAvatar: {
         margin: theme.spacing.unit,
         width: 100,
-        height: 100,
+        height: 120,
     },
 });
 
@@ -80,7 +81,7 @@ class SignIn extends React.Component {
                             <Typography component="h1" variant="h5">
                                 Easy Wheels
                             </Typography>
-                            <Avatar src={window.location.origin + '/images/task.png'} className={classes.bigAvatar}/>
+                            <img src={logo} className={classes.bigAvatar}/>
                             <form className={classes.form}>
                                 <FormControl margin="normal" required fullWidth>
                                     <InputLabel htmlFor="email">Email Address</InputLabel>
@@ -106,6 +107,8 @@ class SignIn extends React.Component {
                                     Login
                                 </Button>
                                 <Button
+                                    component={Link}
+                                    to={"/NewUser"}
                                     fullWidth
                                     variant="contained"
                                     color="primary"
