@@ -141,6 +141,7 @@ class NavigationDrawer extends React.Component {
 
         return (
             <Fragment>
+                {console.log(firebase.isLoggedIn())}
                 <CssBaseline/>
                 <div className={classes.root}>
                     <AppBar
@@ -191,11 +192,11 @@ class NavigationDrawer extends React.Component {
                                 <ListItemAvatar style={{
                                     left: -5,
                                 }}>
-                                    <Avatar>N</Avatar>
+                                    <Avatar>{firebase.isLoggedIn().displayName.charAt(0).toUpperCase()}</Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
-                                    primary="Nicolas Garcia"
-                                    secondary="nicoga97@gmail.com"
+                                    primary={firebase.isLoggedIn().displayName}
+                                    secondary={firebase.isLoggedIn().email}
                                 />
                                 <ListItemSecondaryAction style={{
                                     position: 'absolute',

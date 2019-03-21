@@ -23,7 +23,7 @@ class App extends Component {
                         <Route exact path="/" component={()=> <Login updateLogged={this.updateLogged}/>}/>
                         {this.state.logged===true?<Route path="/mainView" component={NavigationDrawer}/>:null}
                         <Route path={"/NewUser"} component={NewUser}/>
-                        <Route render={() => <h3>Page not found!</h3>}/>
+                        <Route render={() => <Login updateLogged={this.updateLogged}/>}/>
                     </Switch>
                 </div>
             </Router>
