@@ -31,21 +31,11 @@ class NewUser extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
-       /** if (this.state.confirmPassword === this.state.password) {
-            if (localStorage.getItem(this.state.username) === null) {
-                this.createUser();
-                this.setState({name: "", email: "", password: "", confirmPassword: ""});
-                this.setState({doRedirect: true})
-            } else {
-                alert("User with selected username already exists");
-            }
-        } else {
-            alert("The password and the confirmation do not make match")
-        }**/
        const { name, email, password,confirmPassword } = this.state;
-        if(password!==confirmPassword){
+        if(password!==confirmPassword) {
             window.alert("Las constraseñas no son las mismas");
-
+        }else if(email.endsWith("escuelaing.edu.co")===false){
+            window.alert("Para utilizar el servico debe poner el correo de la escuela")
         }else {
             firebase
                 .doCreateUserWithEmailAndPassword(email, password)
@@ -58,27 +48,10 @@ class NewUser extends Component {
                     this.setState({doRedirect: true})
                 })
                 .catch(error => {
-                    this.setState({error});
+                    window.alert(error);
+                    this.setState({name: "", email: "", password: "", confirmPassword: ""});
                 });
         }
-    }
-
-    createUser() {
-        const info = {
-            "name": this.state.name,
-            "email": this.state.email
-        };
-        const user = {
-            "username": this.state.username,
-            "password": this.state.password
-        };
-        localStorage.setItem(this.state.username, JSON.stringify(info));
-        const usersCache = localStorage.getItem("users");
-        let users;
-        if (usersCache)
-            users = [...JSON.parse(usersCache), user];
-        else users = [user];
-        localStorage.setItem("users", JSON.stringify(users))
     }
 
     render() {

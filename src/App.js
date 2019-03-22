@@ -5,12 +5,23 @@ import NavigationDrawer from "./Components/NavigationDrawer";
 import NewUser from "./Components/NewUser/NewUser";
 import FireBase from "./Firebase"
 
+const firebase = FireBase.getInstance();
 
 class App extends Component {
     constructor(props){
         super(props);
         this.state = {logged:false};
         this.updateLogged = this.updateLogged;
+    }
+
+    componentDidMount() {
+        if((localStorage.email!==undefined && localStorage.password!==undefined)||
+            (localStorage.email!=="undefined" && localStorage.password!=="undefined")){
+            console.log("entro");
+            firebase.doSignInWithEmailAndPassword(localStorage.email, localStorage.password).then(authUser =>{
+                this.setState({logged:true});
+            });
+        }
     }
 
     updateLogged = (log) => {this.setState({logged:log})}
