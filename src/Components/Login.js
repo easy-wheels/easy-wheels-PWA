@@ -63,7 +63,8 @@ class SignIn extends React.Component {
             navigate: false,
             referrer: null,
             email:"",
-            password:""
+            password:"",
+            remember : false
         };
         this.handleLogin = this.handleLogin.bind(this);
         firebase.doSignOut()
@@ -101,8 +102,9 @@ class SignIn extends React.Component {
                                            autoComplete="current-password"/>
                                 </FormControl>
                                 <FormControlLabel
-                                    control={<Checkbox value="remember" color="primary"/>}
+                                    control={<Checkbox color="primary"/>}
                                     label="Remember me"
+                                    onChange={event => {this.setState({remember:event.target.checked})}}
                                 />
                                 <Button
                                     type="submit"
@@ -136,15 +138,20 @@ class SignIn extends React.Component {
         firebase.doSignInWithEmailAndPassword(this.state.email, this.state.password).then(authUser =>{
             if(firebase.isEmailVerified()){
                 this.setState({navigate: true, referrer: "/mainView"});
-                //console.log(firebase.isLoggedIn())
                 this.props.updateLogged(true);
             }else{
                 window.alert("El usuario no ha confirmado email")
             }
+            if(this.state.remember===true){
+                localStorage.setItem("email",this.state.email);
+                localStorage.setItem("password",this.state.password);
+            }else{
+                localStorage.setItem("email",undefined);
+                localStorage.setItem("password",undefined);
+            }
         }).catch(error=>
             window.alert(error)
         );
-        //this.setState({navigate: true, referrer: "/mainView"});
     }
 
 }

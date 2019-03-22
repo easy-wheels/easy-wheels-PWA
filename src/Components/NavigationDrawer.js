@@ -38,6 +38,7 @@ import MyCards from "./MyCards";
 import NewUser from "./NewUser/NewUser";
 import Matches from './Matches';
 import Firebase from "../Firebase";
+import { Redirect } from 'react-router-dom'
 
 const firebase = Firebase.getInstance();
 
@@ -121,12 +122,23 @@ const styles = theme => ({
     },
 });
 
+
+
 class NavigationDrawer extends React.Component {
-    state = {
-        open: false,
 
+    constructor(props){
+        super(props);
+        this.state = {
+            open: false,
+        };
+        this.LogOut = this.LogOut.bind(this);
+    }
+
+    LogOut = () =>{
+        localStorage.setItem("email",undefined);
+        localStorage.setItem("password",undefined);
+        this.props.history.push('/');
     };
-
 
     handleDrawerOpen = () => {
         this.setState({open: true});
@@ -141,7 +153,6 @@ class NavigationDrawer extends React.Component {
 
         return (
             <Fragment>
-                {console.log(firebase.isLoggedIn())}
                 <CssBaseline/>
                 <div className={classes.root}>
                     <AppBar
@@ -234,7 +245,7 @@ class NavigationDrawer extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary="Viajes"/>
                             </ListItem>
-                            <ListItem button key="sign-out" component={Link} to="/">
+                            <ListItem button key="sign-out"  onClick={this.LogOut}>
                                 <ListItemIcon><LaunchIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Cerrar sesion"/>
