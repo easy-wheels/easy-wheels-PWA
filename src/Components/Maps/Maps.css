@@ -14,11 +14,9 @@
 
 .floating-panel {
     position: absolute;
-    margin-top: 70px;
     z-index: 5;
     text-align: center;
-    padding: 5px 5px 5px 10px;
-    min-width: 350px;
+    width: auto !important;
 }
 
 .floating-button {

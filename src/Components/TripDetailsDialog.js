@@ -14,8 +14,7 @@ import Divider from "@material-ui/core/Divider";
 import Chip from "@material-ui/core/Chip";
 import GoogleMapsContainer from "./Maps/MapsContainer";
 import './Maps/Maps.css';
-import MaterialTable from 'material-table'
-import CustomToolbarSelect from "./CustomToolbarSelect";
+import MaterialTable from 'material-table';
 
 const styles = theme => ({
     card: {

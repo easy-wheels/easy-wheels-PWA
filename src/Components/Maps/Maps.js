@@ -9,6 +9,8 @@ import DateFnsUtils from "@date-io/date-fns";
 import SearchBar from "./SearchBar";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
 
 class MapsContainer extends React.Component {
 
@@ -176,23 +178,30 @@ class MapsContainer extends React.Component {
 
         return (
             <>
-                <Paper elevation={5} className="floating-panel">
-                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                        <DatePicker
-                            margin="normal"
-                            label="Fecha"
-                            value={this.state.dueDate}
-                            clearable
-                            onChange={date => this.setState({dueDate: date})}
-                        />
-                    </MuiPickersUtilsProvider>
-                    <form onSubmit={e => e.preventDefault()}>
-                        <SearchBar autocomplete={this.setRefInput}/>
-                    </form>
-                    <Button onClick={this.setDirectionRoute}> </Button>
-                </Paper>
+
+                <Card className='floating-panel'>
+                    <CardContent>
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <DatePicker
+                                margin="normal"
+                                label="Fecha"
+                                value={this.state.dueDate}
+                                clearable
+                                onChange={date => this.setState({dueDate: date})}
+                            />
+                        </MuiPickersUtilsProvider>
+                        <form onSubmit={e => e.preventDefault()}>
+                            <SearchBar autocomplete={this.setRefInput}/>
+                        </form>
+                        <Button onClick={this.setDirectionRoute}> </Button>
+                    </CardContent>
+                </Card>
+
+
                 <div className='center-map'>
+
                     <Map
+                        mapTypeControl={false}
                         item
                         xs={12}
                         style={style}
@@ -203,6 +212,10 @@ class MapsContainer extends React.Component {
                         centerAroundCurrentLocation={false}
 
                     >
+                        <InfoWindow
+                            visible={true}
+                        >
+                        </InfoWindow>
                         <Marker
                             onClick={this.onMarkerClick}
                             title={'Escuela colombiana de ingenieria Julio Garavito'}
