@@ -15,12 +15,15 @@ class App extends Component {
     }
 
     componentDidMount() {
-        if((localStorage.email!==undefined && localStorage.password!==undefined)||
-            (localStorage.email!=="undefined" && localStorage.password!=="undefined")){
-            console.log("entro");
-            firebase.doSignInWithEmailAndPassword(localStorage.email, localStorage.password).then(authUser =>{
-                this.setState({logged:true});
-            });
+        try {
+            if ((localStorage.email !== undefined && localStorage.password !== undefined) ||
+                (localStorage.email !== "undefined" && localStorage.password !== "undefined")) {
+                firebase.doSignInWithEmailAndPassword(localStorage.email, localStorage.password).then(authUser => {
+                    this.setState({logged: true});
+                });
+            }
+        }catch (e) {
+
         }
     }
 
