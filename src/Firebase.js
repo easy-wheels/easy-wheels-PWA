@@ -1,5 +1,6 @@
 import app from 'firebase/app';
 import 'firebase/auth';
+import firebase from "firebase";
 require('firebase/firestore');
 
 const config = {
@@ -52,6 +53,58 @@ class Firebase {
         email:email,
         name:name
     });
+
+    //User
+
+    getNameByEmail = (email) => this.db.collection("users").get()
+        .then(col => {
+            var name;
+            col.docs.map(doc => {
+                if(doc.data().email === email){
+                    name = doc.data().name
+                }
+            });
+            return name;
+        });
+
+    getIdbyEmail = (email) => this.db.collection("users").get()
+        .then(col => {
+            var id;
+            col.docs.map(doc => {
+                if(doc.data().email === email){
+                    id = doc.id;
+                }
+            });
+            return id;
+        });
+
+    //Pick up Stops
+
+    addPickUpStop = (latitude, longitude) => this.db.collection("pickupstops").add({
+        position:new firebase.firestore.GeoPoint(latitude,longitude)
+    });
+
+    getIdPickUpStop = (latitude, longitude) => this.db.collection("pickupstops").get()
+        .then(col => {
+            var id;
+            col.docs.map(doc => {
+                if(doc.data().position.isEqual(new firebase.firestore.GeoPoint(latitude,longitude))){
+                    id = doc.id;
+                }
+            });
+            return id;
+        });
+
+    getAllPickUpStops = () => this.db.collection("pickupstops").get()
+        .then(col => {
+           var pickUps = [];
+           col.docs.map(doc => {
+               pickUps.push([doc.data().position.latitude,  doc.data().position.longitude]);
+           });
+           return pickUps;
+        });
+
+    
 
     static getInstance = () => Firebase.firebase;
 }
