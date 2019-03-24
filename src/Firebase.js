@@ -1,5 +1,6 @@
 import app from 'firebase/app';
 import 'firebase/auth';
+require('firebase/firestore');
 
 const config = {
     apiKey: "AIzaSyDRV6LF10YiqK5ORo8P5dFN1vzL_Tjbmp8",
@@ -16,8 +17,8 @@ class Firebase {
     static firebase = new Firebase();
     constructor() {
         app.initializeApp(config);
-
         this.auth = app.auth();
+        this.db = app.firestore();
     }
 
     // *** Auth API ***
@@ -44,6 +45,13 @@ class Firebase {
     isEmailVerified = () => this.auth.currentUser.emailVerified;
 
     isLoggedIn = () => this.auth.currentUser;
+
+    // *** DB API ***
+
+    addUser = (email, name) => this.db.collection("users").add({
+        email:email,
+        name:name
+    });
 
     static getInstance = () => Firebase.firebase;
 }
