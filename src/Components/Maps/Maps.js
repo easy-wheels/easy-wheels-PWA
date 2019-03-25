@@ -4,19 +4,56 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import 'date-fns';
 import './Maps.css';
-import {DatePicker, MuiPickersUtilsProvider} from "material-ui-pickers";
-import DateFnsUtils from "@date-io/date-fns";
 import SearchBar from "./SearchBar";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
+import IconButton from "@material-ui/core/IconButton";
+import Divider from "@material-ui/core/Divider";
+import withStyles from "@material-ui/core/styles/withStyles";
+import MenuIcon from '@material-ui/icons/Menu';
+import DirectionsIcon from '@material-ui/icons/Directions';
+import PropTypes from 'prop-types';
+import Collapse from "@material-ui/core/Collapse";
+import CardActions from "@material-ui/core/CardActions";
+
+const styles = {
+    root: {
+        padding: '2px 4px',
+        display: 'flex',
+        alignItems: 'center',
+        width: '70vw',
+        position: 'absolute',
+        zIndex: 5,
+        textAlign: 'center',
+    },
+    display: {
+        display: 'flex',
+        position: 'absolute',
+    },
+    input: {
+        marginLeft: 8,
+        flex: 1,
+    },
+    iconButton: {
+        padding: 10,
+    },
+    divider: {
+        width: 1,
+        height: 28,
+        margin: 4,
+    },
+
+};
 
 class MapsContainer extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            driverMode: true,
+            toUniversity: true,
+            expanded: false,
             showingInfoWindow: false,
             activeMarker: {},
             selectedPlace: {},
@@ -64,6 +101,7 @@ class MapsContainer extends React.Component {
         // this.reverseGeocode(latLng);
         this.setState({userPosition: latLng, position: latLng});
     }
+
     setRefInput(ref) {
         this.autocomplete = ref;
     }
@@ -112,7 +150,7 @@ class MapsContainer extends React.Component {
         autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace();
 
-            if (!place.geometry){
+            if (!place.geometry) {
                 // User entered the name of a Place that was not suggested and
                 // pressed the Enter key, or the Place Details request failed.
                 window.alert("No hay detalles sobre: '" + place.name + "'");
@@ -129,7 +167,7 @@ class MapsContainer extends React.Component {
         });
     }
 
-    setDirectionRoute(){
+    setDirectionRoute() {
         const {google, map} = this.props;
         if (!google || !map) return;
         const directionsService = new google.maps.DirectionsService();
@@ -152,7 +190,7 @@ class MapsContainer extends React.Component {
                 window.alert('Directions request failed due to ' + status);
             }
         });
-        this.setState({loadV:true})
+        this.setState({loadV: true})
     }
 
     //React component functions
@@ -167,7 +205,9 @@ class MapsContainer extends React.Component {
         if (this.props.map !== prevProps.map) this.renderAutoComplete();
     }
 
+
     render() {
+        const {classes} = this.props;
 
         const style = {
             width: '100vw',
@@ -179,24 +219,40 @@ class MapsContainer extends React.Component {
         return (
             <>
 
-                <Card className='floating-panel'>
-                    <CardContent>
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <DatePicker
-                                margin="normal"
-                                label="Fecha"
-                                value={this.state.dueDate}
-                                clearable
-                                onChange={date => this.setState({dueDate: date})}
-                            />
-                        </MuiPickersUtilsProvider>
-                        <form onSubmit={e => e.preventDefault()}>
-                            <SearchBar autocomplete={this.setRefInput}/>
-                        </form>
-                        <Button onClick={this.setDirectionRoute}> </Button>
-                    </CardContent>
-                </Card>
 
+                <Paper className={classes.root} elevation={1}>
+
+
+                    <IconButton className={classes.iconButton}
+                                onClick={() => this.setState({expanded: !this.state.expanded})} aria-label="Menu">
+                        <MenuIcon/>
+                    </IconButton>
+                    <form onSubmit={e => e.preventDefault()}>
+                        <SearchBar className={classes.input}
+                                   placeholder={this.state.toUniversity ? this.state.driverMode ? "Direccion de salida" : "Direccion de recogida" : "Direccion de destino"}
+                                   autocomplete={this.setRefInput}/>
+                    </form>
+
+
+                    <Divider der className={classes.divider}/>
+                    <IconButton color="primary" className={classes.iconButton} aria-label="Directions">
+                        <DirectionsIcon/>
+                    </IconButton>
+
+
+                    <Collapse in={this.state.expanded} className={classes.absolute} timeout="auto" unmountOnExit>
+                        <CardContent>
+                            dshds
+                        </CardContent>
+                        <CardActions>
+                            <Button size="medium" color="secondary">
+                                Eliminar pasajero
+                            </Button>
+                        </CardActions>
+                    </Collapse>
+
+
+                </Paper>
 
                 <div className='center-map'>
 
@@ -212,6 +268,7 @@ class MapsContainer extends React.Component {
                         centerAroundCurrentLocation={false}
 
                     >
+
                         <InfoWindow
                             visible={true}
                         >
@@ -264,23 +321,26 @@ class MapsContainer extends React.Component {
     }
 }
 
+MapsContainer.propTypes = {
+    classes: PropTypes.object.isRequired,
+};
 
 const MapWrapper = props => (
     <div className="unAbsolute">
         <Map className="map" google={props.google} visible={false}>
-                <MapsContainer {...props} />
+            <MapsContainer {...props} />
         </Map>
     </div>
 );
 
 const LoadingContainer = (props) => (
     <div className="center-loading">
-        <CircularProgress size={120} thickness={3.8}/>
+        <CircularProgress size={100} thickness={3.8}/>
     </div>
 )
 
-export default GoogleApiWrapper({
+export default withStyles(styles)(GoogleApiWrapper({
     apiKey: 'AIzaSyBb23DZ9UPaSVg-W6e-SEXSGSytg1nAPPw',
     language: "es",
     LoadingContainer: LoadingContainer
-})(MapWrapper)
+})(MapWrapper))

@@ -16,7 +16,21 @@
     position: absolute;
     z-index: 5;
     text-align: center;
-    width: auto !important;
+    padding: 2px 2px;
+    display: flex;
+    alignItems: center;
+    width: 400px;
+}
+
+.floating-panel-content {
+    flex: 1 0 auto;
+}
+
+.floating-panel-details {
+
+    display: flex;
+    flexDirection: column;
+
 }
 
 .floating-button {
