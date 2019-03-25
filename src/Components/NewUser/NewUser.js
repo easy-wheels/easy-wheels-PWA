@@ -42,10 +42,14 @@ class NewUser extends Component {
                 .then(authUser => {
                     firebase.doChangeName(name);
                     firebase.doEmailVerification();
-                    firebase.doSignOut();
-                    window.alert("Asegurese de confirmar el email");
-                    this.setState({name: "", email: "", password: "", confirmPassword: ""});
-                    this.setState({doRedirect: true})
+                    firebase.addUser(email,name).then(a => {
+                        window.alert("Asegurese de confirmar el email");
+                        this.setState({name: "", email: "", password: "", confirmPassword: ""});
+                        this.setState({doRedirect: true});
+                        firebase.doSignOut();
+                    });
+
+
                 })
                 .catch(error => {
                     window.alert(error);
