@@ -247,11 +247,14 @@ class NavigationDrawer extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary="Viajes"/>
                             </ListItem>
-                            <ListItem button key="sign-out"  onClick={this.LogOut}>
-                                <ListItemIcon><LaunchIcon/>
-                                </ListItemIcon>
-                                <ListItemText primary="Cerrar sesion"/>
-                            </ListItem>
+
+                            <div style={{bottom:-1000}}>
+                                <ListItem button key="sign-out" component={Link} to="/mainView/tasks">
+                                    <ListItemIcon><LaunchIcon/>
+                                    </ListItemIcon>
+                                    <ListItemText primary="Cerrar sesion"/>
+                                </ListItem>
+                            </div>
 
                         </MenuList>
 
