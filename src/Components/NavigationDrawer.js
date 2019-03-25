@@ -137,8 +137,7 @@ class NavigationDrawer extends React.Component {
 
 
     LogOut = () =>{
-        localStorage.setItem("email",undefined);
-        localStorage.setItem("password",undefined);
+        firebase.doSignOut();
         this.props.history.push('/');
     };
 

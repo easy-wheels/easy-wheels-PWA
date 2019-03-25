@@ -67,7 +67,6 @@ class SignIn extends React.Component {
             remember : false
         };
         this.handleLogin = this.handleLogin.bind(this);
-        firebase.doSignOut()
     }
 
     render() {
@@ -142,13 +141,11 @@ class SignIn extends React.Component {
             }else{
                 window.alert("El usuario no ha confirmado email")
             }
-            if(this.state.remember===true){
-                localStorage.setItem("email",this.state.email);
-                localStorage.setItem("password",this.state.password);
+            /**if(this.state.remember===true){
+                firebase.doKeepSignedIn();
             }else{
-                localStorage.setItem("email",undefined);
-                localStorage.setItem("password",undefined);
-            }
+                firebase.doNotKeepSignedIn();
+            }**/
         }).catch(error=>
             window.alert(error)
         );
