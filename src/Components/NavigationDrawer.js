@@ -37,7 +37,10 @@ import CreateAndEditView from "./CreateAndEditView";
 import MyCards from "./MyCards";
 import NewUser from "./NewUser/NewUser";
 import Matches from './Matches';
+import Firebase from "../Firebase";
+import { Redirect } from 'react-router-dom'
 
+const firebase = Firebase.getInstance();
 
 const drawerWidth = 280;
 
@@ -119,12 +122,25 @@ const styles = theme => ({
     },
 });
 
+
+
 class NavigationDrawer extends React.Component {
-    state = {
-        open: false,
 
+    constructor(props){
+        super(props);
+        this.state = {
+            open: false,
+        };
+        this.LogOut = this.LogOut.bind(this);
+    }
+
+
+
+    LogOut = () =>{
+        localStorage.setItem("email",undefined);
+        localStorage.setItem("password",undefined);
+        this.props.history.push('/');
     };
-
 
     handleDrawerOpen = () => {
         this.setState({open: true});
@@ -189,11 +205,11 @@ class NavigationDrawer extends React.Component {
                                 <ListItemAvatar style={{
                                     left: -5,
                                 }}>
-                                    <Avatar>N</Avatar>
+                                    <Avatar>{firebase.isLoggedIn().displayName.charAt(0).toUpperCase()}</Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
-                                    primary="Nicolas Garcia"
-                                    secondary="nicoga97@gmail.com"
+                                    primary={firebase.isLoggedIn().displayName}
+                                    secondary={firebase.isLoggedIn().email}
                                 />
                                 <ListItemSecondaryAction style={{
                                     position: 'absolute',
@@ -231,6 +247,7 @@ class NavigationDrawer extends React.Component {
                                 </ListItemIcon>
                                 <ListItemText primary="Viajes"/>
                             </ListItem>
+
                             <div style={{bottom:-1000}}>
                                 <ListItem button key="sign-out" component={Link} to="/mainView/tasks">
                                     <ListItemIcon><LaunchIcon/>
