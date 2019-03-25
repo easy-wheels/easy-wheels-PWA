@@ -11,11 +11,19 @@ import CardContent from "@material-ui/core/CardContent";
 import IconButton from "@material-ui/core/IconButton";
 import Divider from "@material-ui/core/Divider";
 import withStyles from "@material-ui/core/styles/withStyles";
-import MenuIcon from '@material-ui/icons/Menu';
-import DirectionsIcon from '@material-ui/icons/Directions';
+import DetailsIcon from '@material-ui/icons/EditAttributes';
+import DriverIcon from '@material-ui/icons/DriveEta';
+import PassangerIcon from '@material-ui/icons/Person';
 import PropTypes from 'prop-types';
 import Collapse from "@material-ui/core/Collapse";
 import CardActions from "@material-ui/core/CardActions";
+import Grid from "@material-ui/core/Grid";
+import {DateTimePicker, MuiPickersUtilsProvider} from "material-ui-pickers";
+import DateFnsUtils from "@date-io/date-fns";
+import FormControl from "@material-ui/core/FormControl";
+import Snackbar from "@material-ui/core/Snackbar";
+import CloseIcon from '@material-ui/icons/Close';
+
 
 const styles = {
     root: {
@@ -31,10 +39,6 @@ const styles = {
         display: 'flex',
         position: 'absolute',
     },
-    input: {
-        marginLeft: 8,
-        flex: 1,
-    },
     iconButton: {
         padding: 10,
     },
@@ -43,6 +47,12 @@ const styles = {
         height: 28,
         margin: 4,
     },
+    position: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+
+    }
 
 };
 
@@ -51,6 +61,7 @@ class MapsContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            snackbarOpen: false,
             driverMode: true,
             toUniversity: true,
             expanded: false,
@@ -205,6 +216,16 @@ class MapsContainer extends React.Component {
         if (this.props.map !== prevProps.map) this.renderAutoComplete();
     }
 
+    handleClick = () => {
+        this.setState({snackbarOpen: true, driverMode: !this.state.driverMode});
+    };
+    handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        this.setState({snackbarOpen: false});
+    };
 
     render() {
         const {classes} = this.props;
@@ -222,35 +243,74 @@ class MapsContainer extends React.Component {
 
                 <Paper className={classes.root} elevation={1}>
 
+                    <Grid container>
+                        <Grid wrap="nowrap" item xs={12} className={classes.position}>
+                            <IconButton className={classes.iconButton}
+                                        onClick={() => this.setState({expanded: !this.state.expanded})}
+                                        aria-label="Menu">
+                                <DetailsIcon/>
+                            </IconButton>
+                            <FormControl fullWidth onSubmit={e => e.preventDefault()}>
+                                <SearchBar
 
-                    <IconButton className={classes.iconButton}
-                                onClick={() => this.setState({expanded: !this.state.expanded})} aria-label="Menu">
-                        <MenuIcon/>
-                    </IconButton>
-                    <form onSubmit={e => e.preventDefault()}>
-                        <SearchBar className={classes.input}
-                                   placeholder={this.state.toUniversity ? this.state.driverMode ? "Direccion de salida" : "Direccion de recogida" : "Direccion de destino"}
-                                   autocomplete={this.setRefInput}/>
-                    </form>
-
-
-                    <Divider der className={classes.divider}/>
-                    <IconButton color="primary" className={classes.iconButton} aria-label="Directions">
-                        <DirectionsIcon/>
-                    </IconButton>
+                                    placeholder={this.state.toUniversity ? this.state.driverMode ? "Direccion de salida" : "Direccion de recogida" : "Direccion de destino"}
+                                    autocomplete={this.setRefInput}/>
+                            </FormControl>
 
 
-                    <Collapse in={this.state.expanded} className={classes.absolute} timeout="auto" unmountOnExit>
-                        <CardContent>
-                            dshds
-                        </CardContent>
-                        <CardActions>
-                            <Button size="medium" color="secondary">
-                                Eliminar pasajero
-                            </Button>
-                        </CardActions>
-                    </Collapse>
+                            <Divider className={classes.divider}/>
+                            <IconButton color="primary" className={classes.iconButton} onClick={this.handleClick}
+                                        aria-label="Directions">
+                                {this.state.driverMode ? <DriverIcon/> : <PassangerIcon/>}
+                            </IconButton>
+                            <Snackbar
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'right',
+                                }}
+                                open={this.state.snackbarOpen}
+                                onClose={this.handleSnackbarClose}
+                                autoHideDuration={6000}
+                                ContentProps={{
+                                    'aria-describedby': 'message-id',
+                                }}
+                                message={<span
+                                    id="message-id"> Has cambiado tu rol a {this.state.driverMode ? <>conductor</> : <>pasajero</>}</span>}
+                                action={[
 
+                                    <IconButton
+                                        key="close"
+                                        aria-label="Close"
+                                        color="inherit"
+                                        className={classes.close}
+                                        onClick={this.handleSnackbarClose}
+                                    >
+                                        <CloseIcon/>
+                                    </IconButton>,
+                                ]}
+                            />
+
+                        </Grid>
+                        <Grid wrap="nowrap" item xs={12}>
+                            <Collapse in={this.state.expanded} className={classes.absolute} timeout="auto"
+                                      unmountOnExit>
+                                <CardContent>
+                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                        <DateTimePicker
+                                            label={this.state.toUniversity ? "Fecha y hora de llegada" : "Fecha y hora de salida"}
+                                            clearable
+                                            value={this.state.dueDate}
+                                            onChange={date => this.setState({dueDate: date})}/>
+                                    </MuiPickersUtilsProvider>
+                                </CardContent>
+                                <CardActions>
+                                    <Button size="medium" color="primary">
+                                        Crear Viaje
+                                    </Button>
+                                </CardActions>
+                            </Collapse>
+                        </Grid>
+                    </Grid>
 
                 </Paper>
 
