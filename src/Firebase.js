@@ -21,7 +21,9 @@ class Firebase {
         this.auth = app.auth();
         this.db = app.firestore();
         this.getUserById = this.getUserById.bind(this);
-        this.auth.setPersistence(app.auth.Auth.Persistence.LOCAL);
+        this.auth.setPersistence(process.env.NODE_ENV === 'test'
+            ? app.auth.Auth.Persistence.NONE
+            : app.auth.Auth.Persistence.LOCAL);
         this.auth.onAuthStateChanged((user) =>{
             console.log(user);
         })
