@@ -343,7 +343,7 @@ class MapsContainer extends React.Component {
                                                     label={this.state.toUniversity ? "Fecha y hora de llegada" : "Fecha y hora de salida"}
                                                     clearable
                                                     fullWidth
-                                                     variant="outlined"
+                                                    variant="outlined"
                                                     value={this.state.dueDate}
                                                     onChange={date => this.setState({dueDate: date})}/>
                                             </MuiPickersUtilsProvider>
@@ -353,7 +353,6 @@ class MapsContainer extends React.Component {
 
                                                       control={
                                                         <Switch
-
                                                           checked={this.state.toUniversity}
                                                           onChange={this.handleSwitchChange('toUniversity')}
                                                           value="toUniversity"
