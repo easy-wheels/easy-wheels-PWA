@@ -11,10 +11,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
-import Grid from '@material-ui/core/Grid';
-import MapContainer from './Maps/MapsContainer';
+import TripDetailsDialog from "./TripDetailsDialog";
 
-const styles   = theme => ({
+
+const styles = theme => ({
     appBar: {
         position: 'relative',
     },
@@ -31,6 +31,35 @@ const styles   = theme => ({
         flexGrow: 1,
         padding: theme.spacing.unit * 3,
     },
+    unAbsolute: {
+        position: 'static',
+    },
+    media: {
+        height: 0,
+        paddingTop: '56.25%', // 16:9
+    },
+    actions: {
+        display: 'flex',
+    },
+    root: {
+        width: '100%',
+        maxWidth: 360,
+        backgroundColor: theme.palette.background.paper,
+    },
+    nested: {
+        paddingLeft: theme.spacing.unit * 4,
+    },
+
+    section1: {
+        margin: `${theme.spacing.unit * 3}px ${theme.spacing.unit * 2}px`,
+    },
+    section2: {
+        margin: theme.spacing.unit * 2,
+    },
+
+
+
+
 
 });
 
@@ -51,14 +80,16 @@ class TripCard extends React.Component {
         this.setState({open: false});
     };
 
+
     render() {
         const {classes} = this.props;
         return (
             <>
-                <Card onClick={this.handleClickOpen} >
+                <Card onClick={this.handleClickOpen}>
                     <CardContent className={classes.card}>
+
                         <Typography className={classes.title} color="textSecondary" gutterBottom>
-                            {this.props.trip.driver ?<> Eres conductor </>:<>Eres pasajero</>}
+                            {this.props.trip.driver ? <> Eres conductor </> : <>Eres pasajero</>}
                         </Typography>
                         <Typography variant="h5" component="h2">
                             Destino: {this.props.trip.destination.desc}
@@ -93,35 +124,12 @@ class TripCard extends React.Component {
                         </Toolbar>
                     </AppBar>
                     <main className={classes.content}>
-                        <Grid container   spacing={24}>
-                            <Grid wrap="nowrap" item xs={12} sm={6}>
-                                <Card onClick={this.handleClickOpen} >
-                                    <CardContent className={classes.card}>
-                                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                                            Detalles del Viaje
-                                        </Typography>
-                                        <Typography variant="h5" component="h2">
-                                            {this.props.trip.driver ?<> Viajas como conductor </>:<>Viajas como pasajero</>}
-                                        </Typography>
+                        <TripDetailsDialog trip={this.props.trip}/>
 
-                                        <Typography component="p">
-                                            Tu destino es {this.props.trip.destination.desc}
-                                        </Typography>
-                                        <Typography color="textSecondary">
-                                            {this.props.trip.day}-{this.props.trip.hour}
-                                        </Typography>
-                                        <div style={{ height: '20vh', alignItems: 'center',width: '100vw', 'marginLeft': '5px', 'marginRight': '5px' }}>
-                                          <MapContainer />
-                                         </div>
-                                    </CardContent>
-
-                                </Card>
-
-                            </Grid>
-                        </Grid>
                     </main>
 
                 </Dialog>
+
             </>
         );
     }

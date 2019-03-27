@@ -12,7 +12,9 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import Redirect from "react-router-dom/Redirect";
 import {Link} from "react-router-dom";
 import logo from "./Images/car-logo.svg";
+import Firebase from "../Firebase";
 
+const firebase = Firebase.getInstance();
 
 const styles = theme => ({
     main: {
@@ -52,13 +54,17 @@ const styles = theme => ({
 });
 
 
+
 class SignIn extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             navigate: false,
-            referrer: null
+            referrer: null,
+            email:"",
+            password:"",
+            remember : false
         };
         this.handleLogin = this.handleLogin.bind(this);
     }
@@ -82,26 +88,28 @@ class SignIn extends React.Component {
                                 Easy Wheels
                             </Typography>
                             <img src={logo} className={classes.bigAvatar}/>
-                            <form className={classes.form}>
-                                <FormControl margin="normal" required fullWidth>
+                            <form className={classes.form} onSubmit={this.handleLogin}>
+                                <FormControl margin="normal" required fullWidth onChange={event =>
+                                    this.setState({email:event.target.value})}>
                                     <InputLabel htmlFor="email">Email Address</InputLabel>
                                     <Input id="email" name="email" autoComplete="email" autoFocus/>
                                 </FormControl>
-                                <FormControl margin="normal" required fullWidth>
+                                <FormControl margin="normal" required fullWidth onChange={event =>
+                                    this.setState({password:event.target.value})}>
                                     <InputLabel htmlFor="password">Password</InputLabel>
                                     <Input name="password" type="password" id="password"
                                            autoComplete="current-password"/>
                                 </FormControl>
                                 <FormControlLabel
-                                    control={<Checkbox value="remember" color="primary"/>}
+                                    control={<Checkbox color="primary"/>}
                                     label="Remember me"
+                                    onChange={event => {this.setState({remember:event.target.checked})}}
                                 />
                                 <Button
                                     type="submit"
                                     fullWidth
                                     variant="contained"
                                     color="primary"
-                                    onClick={this.handleLogin}
                                     className={classes.submit}
                                 >
                                     Login
@@ -126,7 +134,21 @@ class SignIn extends React.Component {
 
     handleLogin(e) {
         e.preventDefault();
-        this.setState({navigate: true, referrer: "/mainView"});
+        firebase.doSignInWithEmailAndPassword(this.state.email, this.state.password).then(authUser =>{
+            if(firebase.isEmailVerified()){
+                this.setState({navigate: true, referrer: "/mainView"});
+                this.props.updateLogged(true);
+            }else{
+                window.alert("El usuario no ha confirmado email")
+            }
+            /**if(this.state.remember===true){
+                firebase.doKeepSignedIn();
+            }else{
+                firebase.doNotKeepSignedIn();
+            }**/
+        }).catch(error=>
+            window.alert(error)
+        );
     }
 
 }
