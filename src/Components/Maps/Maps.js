@@ -23,6 +23,12 @@ import DateFnsUtils from "@date-io/date-fns";
 import FormControl from "@material-ui/core/FormControl";
 import Snackbar from "@material-ui/core/Snackbar";
 import CloseIcon from '@material-ui/icons/Close';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import TextField from '@material-ui/core/TextField';
+import classNames from 'classnames';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 
 
 const styles = {
@@ -55,12 +61,40 @@ const styles = {
     }
 
 };
+const availableSeats = [
+  {
+    value: '1',
+    label: '1 Cupo',
+  },
+  {
+    value: '2',
+    label: '2 Cupos',
+  },
+  {
+    value: '3',
+    label: '3 Cupos',
+  },
+  {
+    value: '5',
+    label: '5 Cupos',
+  },
+  {
+    value: '6',
+    label: '6 Cupos',
+  },
+  {
+    value: '7',
+    label: '7 Cupos',
+  },
+
+];
 
 class MapsContainer extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            availableSeats: 1 ,
             snackbarOpen: false,
             driverMode: true,
             toUniversity: true,
@@ -227,6 +261,13 @@ class MapsContainer extends React.Component {
         this.setState({snackbarOpen: false});
     };
 
+    handleChange = prop => event => {
+        this.setState({ [prop]: event.target.value });
+    };
+    handleSwitchChange = name => event => {
+        this.setState({ [name]: event.target.checked });
+      };
+
     render() {
         const {classes} = this.props;
 
@@ -295,13 +336,57 @@ class MapsContainer extends React.Component {
                             <Collapse in={this.state.expanded} className={classes.absolute} timeout="auto"
                                       unmountOnExit>
                                 <CardContent>
-                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                        <DateTimePicker
-                                            label={this.state.toUniversity ? "Fecha y hora de llegada" : "Fecha y hora de salida"}
-                                            clearable
-                                            value={this.state.dueDate}
-                                            onChange={date => this.setState({dueDate: date})}/>
-                                    </MuiPickersUtilsProvider>
+                                    <Grid container spacing={24}>
+                                        <Grid item xs={12} sm={6}>
+                                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                                <DateTimePicker
+                                                    label={this.state.toUniversity ? "Fecha y hora de llegada" : "Fecha y hora de salida"}
+                                                    clearable
+                                                    fullWidth
+                                                     variant="outlined"
+                                                    value={this.state.dueDate}
+                                                    onChange={date => this.setState({dueDate: date})}/>
+                                            </MuiPickersUtilsProvider>
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <FormControlLabel
+
+                                                      control={
+                                                        <Switch
+
+                                                          checked={this.state.toUniversity}
+                                                          onChange={this.handleSwitchChange('toUniversity')}
+                                                          value="toUniversity"
+                                                          color="primary"
+                                                        />
+                                                      }
+                                                      label={this.state.toUniversity ? "Viajas hacia la U" : "Viajas desde la U"}
+                                              />
+                                         </Grid>
+                                        {this.state.driverMode ?
+                                            <Grid item xs={12} sm={6}>
+                                                <TextField
+                                                          id="availableSeats"
+                                                          select
+                                                          variant="outlined"
+                                                          type='text'
+                                                          label="Con cuantos cupos cuentas?"
+                                                          fullWidth
+                                                          value={this.state.availableSeats}
+                                                          onChange={this.handleChange('availableSeats')}
+
+                                                 >
+                                                 {availableSeats.map(option => (
+                                                             <MenuItem key={option.value} value={option.value}>
+                                                               {option.label}
+                                                             </MenuItem>
+                                                           ))}
+                                                  </TextField>
+                                            </Grid>
+                                        :null
+                                        }
+
+                                    </Grid>
                                 </CardContent>
                                 <CardActions>
                                     <Button size="medium" color="primary">
