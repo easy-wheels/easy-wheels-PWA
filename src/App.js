@@ -12,20 +12,10 @@ class App extends Component {
         super(props);
         this.state = {logged:false};
         this.updateLogged = this.updateLogged;
+        //console.log(firebase.isLoggedIn());
+        firebase.doUpdateStateLogin(this.updateLogged);
     }
 
-    componentDidMount() {
-        try {
-            if ((localStorage.email !== undefined && localStorage.password !== undefined) ||
-                (localStorage.email !== "undefined" && localStorage.password !== "undefined")) {
-                firebase.doSignInWithEmailAndPassword(localStorage.email, localStorage.password).then(authUser => {
-                    this.setState({logged: true});
-                });
-            }
-        }catch (e) {
-
-        }
-    }
 
     updateLogged = (log) => {this.setState({logged:log})}
 

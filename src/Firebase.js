@@ -21,9 +21,27 @@ class Firebase {
         this.auth = app.auth();
         this.db = app.firestore();
         this.getUserById = this.getUserById.bind(this);
+        this.auth.setPersistence(process.env.NODE_ENV === 'test'
+            ? app.auth.Auth.Persistence.NONE
+            : app.auth.Auth.Persistence.LOCAL);
+        this.auth.onAuthStateChanged((user) =>{
+            console.log(user);
+        })
     }
 
+
+
     // *** Auth API ***
+
+    doUpdateStateLogin = (fun) => {
+        this.auth.onAuthStateChanged((user)=>{
+           if(user){
+               fun(true)
+           }else{
+               fun(false)
+           }
+        });
+    };
 
     doCreateUserWithEmailAndPassword = (email, password) =>
         this.auth.createUserWithEmailAndPassword(email, password);
@@ -47,6 +65,12 @@ class Firebase {
     isEmailVerified = () => this.auth.currentUser.emailVerified;
 
     isLoggedIn = () => this.auth.currentUser;
+
+    doKeepSignedIn = () => this.auth.setPersistence(app.auth.Auth.Persistence.LOCAL);
+
+    doNotKeepSignedIn = () => this.auth.setPersistence(app.auth.Auth.Persistence.SESSION);
+
+    onChange = () => {return this.auth};
 
     // *** DB API ***
 
