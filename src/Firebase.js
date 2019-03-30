@@ -24,9 +24,6 @@ class Firebase {
         this.auth.setPersistence(process.env.NODE_ENV === 'test'
             ? app.auth.Auth.Persistence.NONE
             : app.auth.Auth.Persistence.LOCAL);
-        this.auth.onAuthStateChanged((user) =>{
-            console.log(user);
-        })
     }
 
 
@@ -74,12 +71,12 @@ class Firebase {
 
     // *** DB API ***
 
+    //User
+
     addUser = (email, name) => this.db.collection("users").add({
         email:email,
         name:name
     });
-
-    //User
 
     getNameByEmail = (email) => this.db.collection("users").get()
         .then(col => {
@@ -151,19 +148,35 @@ class Firebase {
         });
 
     addPointsToRoute = (points, id) => {
-        var promises = []
+        var promises = [];
         points.map(point =>{
             promises.push(this.db.collection("/routes/"+id+"/points").add({
                dot: new firebase.firestore.GeoPoint(point.latitude,point.longitude)
             }));
-        })
+        });
         return Promise.all(promises);
+    };
+
+    modifyPointsToRoute = (points, id) =>{
+        return new Promise(function (resolve, reject) {
+            Firebase.getInstance().db.collection("/routes/"+id+"/points").get()
+                .then(function (col) {
+                    var promises = [];
+                    col.docs.map(doc => {
+                        promises.push(Firebase.getInstance().db.collection("/routes/"+id+"/points").doc(doc.id).delete());
+                    });
+                    Promise.all(promises)
+                        .then(r =>{
+                            Firebase.getInstance().addPointsToRoute(points,id)
+                                .then(resolve())}
+                        );
+                });
+        });
     };
 
     getAllRoutes = () => this.db.collection("routes").get()
         .then(function (col) {
             var promises = [];
-            console.log();
             col.docs.map(doc =>{
                 promises.push(new Promise(function (resolve, reject) {
                     Firebase.getInstance().getUserById(doc.data().driver.id.replace(/\s/g,'')).then(driver =>{
@@ -207,17 +220,42 @@ class Firebase {
             })
         });
 
+    addRoute = (email, day, hour, toHome, points) => {
+        return new Promise(function (resolve, reject) {
+            Firebase.getInstance().getIdbyEmail(email)
+                .then(id =>{
+                    Firebase.getInstance().db.collection("routes").add({
+                        driver:Firebase.getInstance().db.doc("/users/"+id),
+                        time: day+hour,
+                        toHome: toHome
+                    })
+                        .then(route => {
+                            Firebase.getInstance().addPointsToRoute(points, route.id)
+                                .then(points => {resolve(route)});
+                        })
+                })
+        })
+    };
 
+    modifyRoute = (id, day, hour, toHome, points) => {
+        return new Promise(function (resolve, reject) {
+            Firebase.getInstance().db.collection("routes").doc(id).get()
+                .then(route => {
+                    //route.data().driver.id.replace(/\s/g,'')
+                    Firebase.getInstance().modifyPointsToRoute(points,id)
+                        .then(p=>{
+                            Firebase.getInstance().db.collection("routes").doc(id)
+                                .set({
+                                    driver:Firebase.getInstance().db.doc("/users/"+route.data().driver.id.replace(/\s/g,'')),
+                                    time: day+hour,
+                                    toHome: toHome
+                                }).then(result =>{resolve(true)})
+                        })
+                })
+        })
+    };
 
-    addRoute = (email, time, toHome, points) => this.getIdbyEmail(email).then(id =>{
-        this.db.collection("routes").add({
-            driver:this.db.doc("/users/"+id),
-            time: time,
-            toHome: toHome
-        }).then(route => {
-            this.addPointsToRoute(points, route.id);
-        });
-    });
+    deleteRoute = (id) => this.db.collection("routes").doc(id).delete();
 
     // ** TRIPS
     getAllTrips = () => this.db.collection("trips").get()

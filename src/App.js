@@ -4,6 +4,9 @@ import Login from "./Components/Login";
 import NavigationDrawer from "./Components/NavigationDrawer";
 import NewUser from "./Components/NewUser/NewUser";
 import FireBase from "./Firebase"
+import prueba from "./prueba";
+
+const rueba = new prueba();
 
 const firebase = FireBase.getInstance();
 
