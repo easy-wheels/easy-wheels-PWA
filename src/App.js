@@ -4,34 +4,33 @@ import Login from "./Components/Login";
 import NavigationDrawer from "./Components/NavigationDrawer";
 import NewUser from "./Components/NewUser/NewUser";
 import FireBase from "./Firebase"
-import prueba from "./prueba";
-
-const rueba = new prueba();
 
 const firebase = FireBase.getInstance();
 
 class App extends Component {
     constructor(props){
         super(props);
-        this.state = {logged:false};
+        this.state = {logged:false, loaded:false};
         this.updateLogged = this.updateLogged;
         //console.log(firebase.isLoggedIn());
         firebase.doUpdateStateLogin(this.updateLogged);
     }
 
 
-    updateLogged = (log) => {this.setState({logged:log})}
+    updateLogged = (log) => {this.setState({logged:log, loaded:true})}
 
     render() {
         return (
             <Router>
                 <div className="App">
-                    <Switch>
-                        <Route exact path="/" component={()=> <Login updateLogged={this.updateLogged}/>}/>
-                        {this.state.logged===true?<Route path="/mainView" component={NavigationDrawer}/>:null}
-                        <Route path={"/NewUser"} component={NewUser}/>
-                        <Route render={() => <Login updateLogged={this.updateLogged}/>}/>
-                    </Switch>
+                    {this.state.loaded===true?
+                        <Switch>
+                            <Route exact path="/" component={()=> <Login updateLogged={this.updateLogged}/>}/>
+                            {this.state.logged===true?<Route path="/mainView" component={NavigationDrawer}/>:null}
+                            <Route path={"/NewUser"} component={NewUser}/>
+                            <Route render={() => <Login updateLogged={this.updateLogged}/>}/>
+                        </Switch>:<h5>Loading please wait..</h5>}
+
                 </div>
             </Router>
         );

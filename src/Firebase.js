@@ -105,38 +105,6 @@ class Firebase {
             return doc.data();
         });
 
-
-    //Pick up Stops
-
-    addPickUpStop = (latitude, longitude) => this.db.collection("pickupstops").add({
-        position:new firebase.firestore.GeoPoint(latitude,longitude)
-    });
-
-    getIdPickUpStop = (latitude, longitude) => this.db.collection("pickupstops").get()
-        .then(col => {
-            var id;
-            col.docs.map(doc => {
-                if(doc.data().position.isEqual(new firebase.firestore.GeoPoint(latitude,longitude))){
-                    id = doc.id;
-                }
-            });
-            return id;
-        });
-
-    getAllPickUpStops = () => this.db.collection("pickupstops").get()
-        .then(col => {
-           var pickUps = [];
-           col.docs.map(doc => {
-               pickUps.push({latitude: doc.data().position.latitude,  longitude: doc.data().position.longitude, pickUpStopId:doc.id});
-           });
-           return pickUps;
-        });
-
-    getPickUpStopWithId = (id) => this.db.collection("pickupstops").doc(id).get()
-        .then(doc => {
-            return {latitude:doc.data().position.latitude, longitude:doc.data().position.longitude, pickUpStopId:id};
-        });
-
     //Routes
     getPointsRoute = (id) => this.db.collection("/routes/"+id+"/points").get()
         .then(col => {
@@ -258,38 +226,34 @@ class Firebase {
     deleteRoute = (id) => this.db.collection("routes").doc(id).delete();
 
     // ** TRIPS
+
     getTripsWithDayAndHour = (day, hour) =>
         this.db.collection("trips").doc(day+" "+hour).collection("trips").get()
             .then(function (col) {
                 var promises = [];
                 col.docs.map(doc => {
-                    promises.push(Firebase.getInstance().getTripByIdAndTime(day,hour,doc.id))
+                    promises.push(Firebase.getInstance().getTripByIdAndTime(day,hour,doc.id, doc))
                 });
                 return Promise.all(promises);
             });
 
-    getTripByIdAndTime = (day, hour, id) => {
+    getTripByIdAndTime = (day, hour, id, doc) => {
         return new Promise(function (resolve, reject) {
-            Firebase.getInstance().db.collection("trips").doc(day+" "+hour)
-                .collection("trips").doc(id).get()
-                .then(doc =>{
-                    var data = doc.data();
-                    data.tripId = id;
-                    Firebase.getInstance().getRouteById(doc.data().route.id)
-                        .then(routeData =>{
-                            data.route = routeData;
-                            Firebase.getInstance().db.collection("trips/"+day+" "+hour+"/trips/"+id+"/passengers").get()
-                                .then(function (col) {
-                                    var promises = [];
-                                    col.docs.map(doc1 =>{
-                                        //push(Firebase.getInstance().getUserById(doc.data().passenger.id))
-                                        promises.push(Firebase.getInstance().getPassengerWithDoc(doc1));
-                                    });
-                                    Promise.all(promises)
-                                        .then(result => {
-                                            data.passengers = result;
-                                            resolve(data)
-                                        })
+            var data = doc.data();
+            data.tripId = id;
+            Firebase.getInstance().getRouteById(doc.data().route.id)
+                .then(routeData =>{
+                    data.route = routeData;
+                    Firebase.getInstance().db.collection("trips/"+day+" "+hour+"/trips/"+id+"/passengers").get()
+                        .then(function (col) {
+                            var promises = [];
+                            col.docs.map(doc1 =>{
+                                promises.push(Firebase.getInstance().getPassengerWithDoc(doc1));
+                            });
+                            Promise.all(promises)
+                                .then(result => {
+                                    data.passengers = result;
+                                    resolve(data)
                                 })
                         })
                 })
@@ -441,7 +405,8 @@ class Firebase {
                         {
                             point: {latitude: doc.data().point.latitude, longitude: doc.data().point.longitude},
                             toHome: doc.data().toHome,
-                            user: user
+                            user: user,
+                            tripRequestId:doc.id
                         })
                 })
         })
