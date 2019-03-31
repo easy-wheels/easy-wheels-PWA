@@ -1,5 +1,5 @@
 import React from 'react';
-import {GoogleApiWrapper, InfoWindow, makeCancelable, Map, Marker, Polyline} from 'google-maps-react';
+import {GoogleApiWrapper, InfoWindow, Map, Marker, Polyline} from 'google-maps-react';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import 'date-fns';
@@ -23,9 +23,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import FormControl from "@material-ui/core/FormControl";
 import Snackbar from "@material-ui/core/Snackbar";
 import CloseIcon from '@material-ui/icons/Close';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
-import classNames from 'classnames';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
@@ -140,6 +138,24 @@ class MapsContainer extends React.Component {
             showingInfoWindow: false
         });
 
+    handleClick = () => {
+        this.setState({snackbarOpen: true, driverMode: !this.state.driverMode});
+    };
+    handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        this.setState({snackbarOpen: false});
+    };
+
+    handleChange = prop => event => {
+        this.setState({ [prop]: event.target.value });
+    };
+    handleSwitchChange = name => event => {
+        this.setState({ [name]: event.target.checked });
+      };
+
     //Set aux functions
     setCurrentPosition(position) {
         const latLng = {lat: position.coords.latitude, lng: position.coords.longitude};
@@ -250,24 +266,6 @@ class MapsContainer extends React.Component {
         if (this.props.map !== prevProps.map) this.renderAutoComplete();
     }
 
-    handleClick = () => {
-        this.setState({snackbarOpen: true, driverMode: !this.state.driverMode});
-    };
-    handleSnackbarClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        this.setState({snackbarOpen: false});
-    };
-
-    handleChange = prop => event => {
-        this.setState({ [prop]: event.target.value });
-    };
-    handleSwitchChange = name => event => {
-        this.setState({ [name]: event.target.checked });
-      };
-
     render() {
         const {classes} = this.props;
 
@@ -280,10 +278,7 @@ class MapsContainer extends React.Component {
 
         return (
             <>
-
-
                 <Paper className={classes.root} elevation={1}>
-
                     <Grid container>
                         <Grid wrap="nowrap" item xs={12} className={classes.position}>
                             <IconButton className={classes.iconButton}
@@ -330,7 +325,6 @@ class MapsContainer extends React.Component {
                                     </IconButton>,
                                 ]}
                             />
-
                         </Grid>
                         <Grid wrap="nowrap" item xs={12}>
                             <Collapse in={this.state.expanded} className={classes.absolute} timeout="auto"
@@ -350,7 +344,6 @@ class MapsContainer extends React.Component {
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <FormControlLabel
-
                                                       control={
                                                         <Switch
                                                           checked={this.state.toUniversity}
@@ -395,9 +388,7 @@ class MapsContainer extends React.Component {
                             </Collapse>
                         </Grid>
                     </Grid>
-
                 </Paper>
-
                 <div className='center-map'>
 
                     <Map
@@ -409,10 +400,9 @@ class MapsContainer extends React.Component {
                         onClick={this.onMapClick}
                         zoom={17}
                         center={this.state.position}
+                        initialCenter={this.state.university}
                         centerAroundCurrentLocation={false}
-
                     >
-
                         <InfoWindow
                             visible={true}
                         >
@@ -459,7 +449,6 @@ class MapsContainer extends React.Component {
                             strokeWeight={8}/>
                     </Map>
                 </div>
-
             </>
         );
     }

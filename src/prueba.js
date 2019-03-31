@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import FireBase from "./Firebase";
 
 const firebase = FireBase.getInstance();

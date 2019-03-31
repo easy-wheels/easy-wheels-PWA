@@ -54,11 +54,9 @@ class GoogleMapsContainer extends React.Component {
 
 
     render() {
-        const {classes} = this.props;
         if (!this.props.loaded) return <h1>Loading...</h1>;
 
         return (
-
                <Map
                    style={{ height: '20vh', 'marginLeft': '5px', 'marginRight': '5px',position:'fixed'}}
                    item

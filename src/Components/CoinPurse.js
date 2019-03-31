@@ -19,22 +19,22 @@ const Purse = () => (
         </Typography>
         <Divider/>
         <List>
-            <ListItem button component={Link} to="/mainView/coinpurse/addmoney">
+            <ListItem button component={Link} to="/coinpurse/addmoney">
                 Agregar Dinero al Monedero
             </ListItem>
             <Divider/>
-            <ListItem button component={Link} to="/mainView/coinpurse/history">
+            <ListItem button component={Link} to="/coinpurse/history">
                 Historial de transacciones
             </ListItem>
             <Divider/>
-            <ListItem button component={Link} to="/mainView/coinpurse/mycards">
+            <ListItem button component={Link} to="/coinpurse/mycards">
                  Mis tarjetas
             </ListItem>
         </List>
             </CardContent>
         </Card>
     </>
-)
+);
 
 class CoinPurse extends React.Component{
     render() {

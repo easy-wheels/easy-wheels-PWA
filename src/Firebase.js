@@ -1,6 +1,7 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 import firebase from "firebase";
+
 require('firebase/firestore');
 
 const config = {

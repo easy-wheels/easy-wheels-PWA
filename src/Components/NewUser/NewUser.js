@@ -1,25 +1,14 @@
-import {Component} from "react";
-import React from "react";
+import React, {Component} from "react";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import user from "../Images/user.svg";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import {Redirect} from "react-router-dom";
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 import "./NewUser.css"
 import Firebase from "../../Firebase.js"
 
-const INITIAL_STATE = {
-    name:"",
-    email:"",
-    password:"",
-    confirmPassword:"",
-    error:null
-};
-
 const firebase = Firebase.getInstance();
-
 
 class NewUser extends Component {
 
@@ -44,12 +33,9 @@ class NewUser extends Component {
                     firebase.doEmailVerification();
                     firebase.addUser(email,name).then(a => {
                         window.alert("Asegurese de confirmar el email");
-                        this.setState({name: "", email: "", password: "", confirmPassword: ""});
-                        this.setState({doRedirect: true});
+                        this.setState({name: "", email: "", password: "", confirmPassword: "",doRedirect: true});
                         firebase.doSignOut();
                     });
-
-
                 })
                 .catch(error => {
                     window.alert(error);
