@@ -403,10 +403,6 @@ class MapsContainer extends React.Component {
                         initialCenter={this.state.university}
                         centerAroundCurrentLocation={false}
                     >
-                        <InfoWindow
-                            visible={true}
-                        >
-                        </InfoWindow>
                         <Marker
                             onClick={this.onMarkerClick}
                             title={'Escuela colombiana de ingenieria Julio Garavito'}
