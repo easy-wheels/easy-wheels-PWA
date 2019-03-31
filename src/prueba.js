@@ -38,6 +38,20 @@ class prueba{
                 const id = a[0].routeId;
                 firebase.deleteRoute(id);
             })**/
+        //ADD TRIP
+        /**firebase.addTrip("kbHvzoOafzHffGjltOAn",4).then(a => console.log(a))**/
+        //ADD Passenger to trip
+        /**firebase.addPasangerToTrip(
+            "3Lf4RqjSKNEt2L5V3Fj9",
+            "Tuesday",
+            "8:30",
+            "nicolas.garcia-r@mail.escuelaing.edu.co",
+            {latitude:6.353,longitude:8.535})
+            .then(a => console.log(a))**/
+        //GET TRIPS WITH DAY AND HOUR
+        /**firebase.getTripsWithDayAndHour("Tuesday","8:30").then(a => console.log(a));**/
+        //DELETE TRIPS WITH DAY AND HOUR AND ID
+        /**firebase.deleteTripByTimeAndId("Tuesday","8:30","3Lf4RqjSKNEt2L5V3Fj9")**/
     }
 }
 
