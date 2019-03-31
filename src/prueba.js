@@ -52,6 +52,19 @@ class prueba{
         /**firebase.getTripsWithDayAndHour("Tuesday","8:30").then(a => console.log(a));**/
         //DELETE TRIPS WITH DAY AND HOUR AND ID
         /**firebase.deleteTripByTimeAndId("Tuesday","8:30","3Lf4RqjSKNEt2L5V3Fj9")**/
+        //ADD TRIP REQUEST
+        /**firebase.addTripRequest(
+            "david.rodriguez-a@mail.escuelaing.edu.co",
+            {latitude:5,longitude:8},
+            "Tuesday",
+            "8:30",
+            false)**/
+        //GET TRIP REQUEST BY TIME
+        /**firebase.getTripRequestsByDayAndHour("Tuesday","8:30").then(a => console.log(a))**/
+        //DELETE TRIP
+        /**firebase.deleteTripRequestByTimeAndId("Tuesday","8:30",
+         ihLhrnJNl8npkvEd2uIv) **/
+
     }
 }
 

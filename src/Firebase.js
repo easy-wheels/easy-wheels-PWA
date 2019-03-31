@@ -400,6 +400,56 @@ class Firebase {
         })
     };
 
+    //TripRequest
+    addTripRequest = (email, point, day, hour, toHome) => {
+        return new Promise(function (resolve, reject) {
+            Firebase.getInstance().getIdbyEmail(email)
+                .then(userId => {
+                    Firebase.getInstance().db.collection("tripRequests")
+                        .doc(day+" "+hour)
+                        .collection("tripRequest")
+                        .add({
+                            user:Firebase.getInstance().db.doc("users/"+userId),
+                            point:new firebase.firestore.GeoPoint(point.latitude,point.longitude),
+                            toHome:toHome
+                        })
+                        .then(result => resolve(result))
+                })
+        })
+    };
+
+    getTripRequestsByDayAndHour = (day, hour) => {
+        return new Promise(function (resolve, reject) {
+            Firebase.getInstance().db.collection("tripRequests").doc(day+" "+hour)
+                .collection("tripRequest").get()
+                .then(function (col) {
+                    var promises = [];
+                    col.docs.map(doc =>{
+                        promises.push(Firebase.getInstance().getTripRequestByTimeAndId(doc))
+                    });
+
+                    resolve(Promise.all(promises));
+                })
+        })
+    };
+
+    getTripRequestByTimeAndId = (doc) => {
+        return new Promise(function (resolve, reject) {
+            Firebase.getInstance().getUserById(doc.data().user.id)
+                .then(user => {
+                    resolve(
+                        {
+                            point: {latitude: doc.data().point.latitude, longitude: doc.data().point.longitude},
+                            toHome: doc.data().toHome,
+                            user: user
+                        })
+                })
+        })
+    };
+
+    deleteTripRequestByTimeAndId = (day, time, id) => this.db.collection("tripRequests")
+        .doc(day+" "+time).collection("tripRequest").doc(id).delete();
+
     static getInstance = () => Firebase.firebase;
 }
 
