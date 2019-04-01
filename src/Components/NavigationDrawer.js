@@ -40,7 +40,7 @@ import Firebase from "../Firebase";
 
 const firebase = Firebase.getInstance();
 
-const drawerWidth = 280;
+const drawerWidth = 256;
 
 const styles = theme => ({
     root: {
