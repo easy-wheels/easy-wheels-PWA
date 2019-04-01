@@ -4,31 +4,42 @@ import Login from "./Components/Login";
 import NavigationDrawer from "./Components/NavigationDrawer";
 import NewUser from "./Components/NewUser/NewUser";
 import FireBase from "./Firebase"
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const firebase = FireBase.getInstance();
 
 class App extends Component {
     constructor(props){
         super(props);
-        this.state = {logged:false};
-        this.updateLogged = this.updateLogged;
-        //console.log(firebase.isLoggedIn());
+        this.state = {logged:false, loaded:false};
+        this.updateLogged = this.updateLogged.bind(this);
         firebase.doUpdateStateLogin(this.updateLogged);
     }
 
 
-    updateLogged = (log) => {this.setState({logged:log})}
+    updateLogged = (log) => {this.setState({logged:log, loaded:true})};
 
     render() {
         return (
             <Router>
                 <div className="App">
-                    <Switch>
-                        <Route exact path="/" component={()=> <Login updateLogged={this.updateLogged}/>}/>
-                        {this.state.logged===true?<Route path="/mainView" component={NavigationDrawer}/>:null}
-                        <Route path={"/NewUser"} component={NewUser}/>
-                        <Route render={() => <Login updateLogged={this.updateLogged}/>}/>
-                    </Switch>
+                    {this.state.loaded===true?
+                        <>
+                            {this.state.logged===true?
+                                <Switch>
+                                    <Route path="/" component={NavigationDrawer}/>
+                                </Switch>
+                                :
+                                <Switch>
+                                    <Route exact path="/" component={()=> <Login updateLogged={this.updateLogged}/>}/>
+                                    <Route path={"/NewUser"} component={NewUser}/>
+                                </Switch>
+                            }
+                        </>
+                        :
+                        <div className="center-loading">
+                            <CircularProgress size={100} thickness={3.8}/>
+                        </div>}
                 </div>
             </Router>
         );

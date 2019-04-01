@@ -14,7 +14,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 
 
-
 class AddPayment extends React.Component{
     constructor(props){
         super(props);

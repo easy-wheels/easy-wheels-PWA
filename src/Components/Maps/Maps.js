@@ -1,5 +1,5 @@
 import React from 'react';
-import {GoogleApiWrapper, InfoWindow, makeCancelable, Map, Marker, Polyline} from 'google-maps-react';
+import {GoogleApiWrapper, InfoWindow, Map, Marker, Polyline} from 'google-maps-react';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import 'date-fns';
@@ -23,13 +23,15 @@ import DateFnsUtils from "@date-io/date-fns";
 import FormControl from "@material-ui/core/FormControl";
 import Snackbar from "@material-ui/core/Snackbar";
 import CloseIcon from '@material-ui/icons/Close';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
-import classNames from 'classnames';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import FireBase from "../../Firebase";
+import {getDayAsString, getHoursAsString} from "../../DateManager";
 
+
+const firebase = FireBase.getInstance();
 
 const styles = {
     root: {
@@ -96,7 +98,7 @@ class MapsContainer extends React.Component {
         this.state = {
             availableSeats: 1 ,
             snackbarOpen: false,
-            driverMode: true,
+            driverMode: false,
             toUniversity: true,
             expanded: false,
             showingInfoWindow: false,
@@ -114,6 +116,8 @@ class MapsContainer extends React.Component {
         // Other binds
         this.setRefInput = this.setRefInput.bind(this);
         this.setCurrentPosition = this.setCurrentPosition.bind(this);
+        this.userRequestTravel = this.userRequestTravel.bind(this);
+        this.driverCreateTravel = this.driverCreateTravel.bind(this);
 
         this.setDirectionRoute = this.setDirectionRoute.bind(this)
     }
@@ -126,6 +130,7 @@ class MapsContainer extends React.Component {
             showingInfoWindow: true
         });
     };
+
     onMapClick = (props) => {
         if (this.state.showingInfoWindow) {
             this.setState({
@@ -134,11 +139,32 @@ class MapsContainer extends React.Component {
             });
         }
     };
+
     onInfoWindowClose = () =>
         this.setState({
             activeMarker: null,
             showingInfoWindow: false
         });
+
+    handleClick = () => {
+        this.setState({snackbarOpen: true, driverMode: !this.state.driverMode});
+    };
+
+    handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        this.setState({snackbarOpen: false});
+    };
+
+    handleChange = prop => event => {
+        this.setState({ [prop]: event.target.value });
+    };
+
+    handleSwitchChange = name => event => {
+        this.setState({ [name]: event.target.checked });
+      };
 
     //Set aux functions
     setCurrentPosition(position) {
@@ -238,6 +264,25 @@ class MapsContainer extends React.Component {
         this.setState({loadV: true})
     }
 
+    //Google maps functions
+    driverCreateTravel() {
+        firebase.addRoute(firebase.isLoggedIn().email,
+            getDayAsString(this.state.dueDate),
+            getHoursAsString(this.state.dueDate),
+            !this.state.toUniversity,
+            this.state.pathCoordinates)
+            .then(a => console.log(a));
+    }
+
+    userRequestTravel() {
+        firebase.addTripRequest(
+            firebase.isLoggedIn().email,
+            this.state.userPosition,
+            getDayAsString(this.state.dueDate),
+            getHoursAsString(this.state.dueDate),
+            !this.state.toUniversity)
+    }
+
     //React component functions
     componentDidMount() {
         this.renderAutoComplete();
@@ -249,24 +294,6 @@ class MapsContainer extends React.Component {
     componentDidUpdate(prevProps) {
         if (this.props.map !== prevProps.map) this.renderAutoComplete();
     }
-
-    handleClick = () => {
-        this.setState({snackbarOpen: true, driverMode: !this.state.driverMode});
-    };
-    handleSnackbarClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        this.setState({snackbarOpen: false});
-    };
-
-    handleChange = prop => event => {
-        this.setState({ [prop]: event.target.value });
-    };
-    handleSwitchChange = name => event => {
-        this.setState({ [name]: event.target.checked });
-      };
 
     render() {
         const {classes} = this.props;
@@ -280,10 +307,7 @@ class MapsContainer extends React.Component {
 
         return (
             <>
-
-
                 <Paper className={classes.root} elevation={1}>
-
                     <Grid container>
                         <Grid wrap="nowrap" item xs={12} className={classes.position}>
                             <IconButton className={classes.iconButton}
@@ -293,7 +317,6 @@ class MapsContainer extends React.Component {
                             </IconButton>
                             <FormControl fullWidth onSubmit={e => e.preventDefault()}>
                                 <SearchBar
-
                                     placeholder={this.state.toUniversity ? this.state.driverMode ? "Direccion de salida" : "Direccion de recogida" : "Direccion de destino"}
                                     autocomplete={this.setRefInput}/>
                             </FormControl>
@@ -309,6 +332,7 @@ class MapsContainer extends React.Component {
                                     vertical: 'bottom',
                                     horizontal: 'right',
                                 }}
+                                style={{left:"unset"}}
                                 open={this.state.snackbarOpen}
                                 onClose={this.handleSnackbarClose}
                                 autoHideDuration={6000}
@@ -330,7 +354,6 @@ class MapsContainer extends React.Component {
                                     </IconButton>,
                                 ]}
                             />
-
                         </Grid>
                         <Grid wrap="nowrap" item xs={12}>
                             <Collapse in={this.state.expanded} className={classes.absolute} timeout="auto"
@@ -344,13 +367,13 @@ class MapsContainer extends React.Component {
                                                     clearable
                                                     fullWidth
                                                     variant="outlined"
+                                                    minutesStep={30}
                                                     value={this.state.dueDate}
                                                     onChange={date => this.setState({dueDate: date})}/>
                                             </MuiPickersUtilsProvider>
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <FormControlLabel
-
                                                       control={
                                                         <Switch
                                                           checked={this.state.toUniversity}
@@ -388,16 +411,20 @@ class MapsContainer extends React.Component {
                                     </Grid>
                                 </CardContent>
                                 <CardActions>
-                                    <Button size="medium" color="primary">
-                                        Crear Viaje
-                                    </Button>
+                                    {this.state.driverMode ?
+                                        <Button size="medium" color="primary" onClick={this.driverCreateTravel}>
+                                            Crear Viaje
+                                        </Button>
+                                        :
+                                        <Button size="medium" color="primary" onClick={this.userRequestTravel}>
+                                            Solicitar Viaje
+                                        </Button>
+                                    }
                                 </CardActions>
                             </Collapse>
                         </Grid>
                     </Grid>
-
                 </Paper>
-
                 <div className='center-map'>
 
                     <Map
@@ -409,14 +436,9 @@ class MapsContainer extends React.Component {
                         onClick={this.onMapClick}
                         zoom={17}
                         center={this.state.position}
+                        initialCenter={this.state.university}
                         centerAroundCurrentLocation={false}
-
                     >
-
-                        <InfoWindow
-                            visible={true}
-                        >
-                        </InfoWindow>
                         <Marker
                             onClick={this.onMarkerClick}
                             title={'Escuela colombiana de ingenieria Julio Garavito'}
@@ -459,7 +481,6 @@ class MapsContainer extends React.Component {
                             strokeWeight={8}/>
                     </Map>
                 </div>
-
             </>
         );
     }
@@ -481,7 +502,7 @@ const LoadingContainer = (props) => (
     <div className="center-loading">
         <CircularProgress size={100} thickness={3.8}/>
     </div>
-)
+);
 
 export default withStyles(styles)(GoogleApiWrapper({
     apiKey: 'AIzaSyBb23DZ9UPaSVg-W6e-SEXSGSytg1nAPPw',
