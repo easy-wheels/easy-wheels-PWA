@@ -332,6 +332,7 @@ class MapsContainer extends React.Component {
                                     vertical: 'bottom',
                                     horizontal: 'right',
                                 }}
+                                style={{left:"unset"}}
                                 open={this.state.snackbarOpen}
                                 onClose={this.handleSnackbarClose}
                                 autoHideDuration={6000}
