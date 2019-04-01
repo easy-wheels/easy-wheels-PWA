@@ -9,7 +9,6 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
-import Redirect from "react-router-dom/Redirect";
 import {Link} from "react-router-dom";
 import logo from "./Images/car-logo.svg";
 import Firebase from "../Firebase";
@@ -74,59 +73,52 @@ class SignIn extends React.Component {
 
         return (
             <div>
-
-                {this.state.navigate === true
-                    ? <div>
-
-                        {this.state.navigate ? <Redirect to={this.state.referrer}/> : null}
-                    </div>
-                    :
-                    <main className={classes.main}>
-                        <CssBaseline/>
-                        <Paper className={classes.paper}>
-                            <Typography component="h1" variant="h5">
-                                Easy Wheels
-                            </Typography>
-                            <img src={logo} className={classes.bigAvatar}/>
-                            <form className={classes.form} onSubmit={this.handleLogin}>
-                                <FormControl margin="normal" required fullWidth onChange={event =>
-                                    this.setState({email:event.target.value})}>
-                                    <InputLabel htmlFor="email">Email Address</InputLabel>
-                                    <Input id="email" name="email" autoComplete="email" autoFocus/>
-                                </FormControl>
-                                <FormControl margin="normal" required fullWidth onChange={event =>
-                                    this.setState({password:event.target.value})}>
-                                    <InputLabel htmlFor="password">Password</InputLabel>
-                                    <Input name="password" type="password" id="password"
-                                           autoComplete="current-password"/>
-                                </FormControl>
-                                <FormControlLabel
-                                    control={<Checkbox color="primary"/>}
-                                    label="Remember me"
-                                    onChange={event => {this.setState({remember:event.target.checked})}}
-                                />
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.submit}
-                                >
-                                    Login
-                                </Button>
-                                <Button
-                                    component={Link}
-                                    to={"/NewUser"}
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.submit}
-                                >
-                                    Create Account
-                                </Button>
-                            </form>
-                        </Paper>
-                    </main>}
+                <main className={classes.main}>
+                    <CssBaseline/>
+                    <Paper className={classes.paper}>
+                        <Typography component="h1" variant="h5">
+                            Easy Wheels
+                        </Typography>
+                        <img src={logo} alt="logoBigAvatar" className={classes.bigAvatar}/>
+                        <form className={classes.form} onSubmit={this.handleLogin}>
+                            <FormControl margin="normal" required fullWidth onChange={event =>
+                                this.setState({email:event.target.value})}>
+                                <InputLabel htmlFor="email">Email Address</InputLabel>
+                                <Input id="email" name="email" autoComplete="email" autoFocus/>
+                            </FormControl>
+                            <FormControl margin="normal" required fullWidth onChange={event =>
+                                this.setState({password:event.target.value})}>
+                                <InputLabel htmlFor="password">Password</InputLabel>
+                                <Input name="password" type="password" id="password"
+                                       autoComplete="current-password"/>
+                            </FormControl>
+                            <FormControlLabel
+                                control={<Checkbox color="primary"/>}
+                                label="Remember me"
+                                onChange={event => {this.setState({remember:event.target.checked})}}
+                            />
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                className={classes.submit}
+                            >
+                                Login
+                            </Button>
+                            <Button
+                                component={Link}
+                                to={"/NewUser"}
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                className={classes.submit}
+                            >
+                                Create Account
+                            </Button>
+                        </form>
+                    </Paper>
+                </main>
             </div>
         );
 
@@ -136,7 +128,6 @@ class SignIn extends React.Component {
         e.preventDefault();
         firebase.doSignInWithEmailAndPassword(this.state.email, this.state.password).then(authUser =>{
             if(firebase.isEmailVerified()){
-                this.setState({navigate: true, referrer: "/mainView"});
                 this.props.updateLogged(true);
             }else{
                 window.alert("El usuario no ha confirmado email")

@@ -13,10 +13,7 @@ const styles = theme => ({
 });
 
 function SearchBar(props) {
-    const {classes} = props;
     return (
-
-
         <InputBase
             fullWidth
             placeholder={props.placeholder}

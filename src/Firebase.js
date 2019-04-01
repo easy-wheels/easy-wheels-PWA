@@ -1,6 +1,7 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 import firebase from "firebase";
+
 require('firebase/firestore');
 
 const config = {
@@ -80,7 +81,7 @@ class Firebase {
 
     getNameByEmail = (email) => this.db.collection("users").get()
         .then(col => {
-            var name;
+            let name;
             col.docs.map(doc => {
                 if(doc.data().email === email){
                     name = doc.data().name
@@ -91,7 +92,7 @@ class Firebase {
 
     getIdbyEmail = (email) => this.db.collection("users").get()
         .then(col => {
-            var id;
+            let id;
             col.docs.map(doc => {
                 if(doc.data().email === email){
                     id = doc.id;
@@ -108,7 +109,7 @@ class Firebase {
     //Routes
     getPointsRoute = (id) => this.db.collection("/routes/"+id+"/points").get()
         .then(col => {
-            var points = [];
+            const points = [];
             col.docs.map(doc => {
                 points.push({latitude: doc.data().dot.latitude, longitude:doc.data().dot.longitude});
             });
@@ -116,7 +117,7 @@ class Firebase {
         });
 
     addPointsToRoute = (points, id) => {
-        var promises = [];
+        const promises = [];
         points.map(point =>{
             promises.push(this.db.collection("/routes/"+id+"/points").add({
                dot: new firebase.firestore.GeoPoint(point.latitude,point.longitude)
@@ -374,7 +375,7 @@ class Firebase {
                         .collection("tripRequest")
                         .add({
                             user:Firebase.getInstance().db.doc("users/"+userId),
-                            point:new firebase.firestore.GeoPoint(point.latitude,point.longitude),
+                            point:new firebase.firestore.GeoPoint(point.lat,point.lng),
                             toHome:toHome
                         })
                         .then(result => resolve(result))
