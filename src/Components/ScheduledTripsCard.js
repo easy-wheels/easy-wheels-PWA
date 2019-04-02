@@ -59,10 +59,10 @@ function ScheduledTripsCard(props) {
       <div style={{ height: '5vh', width: '10%' }}>
       </div>
       <CardMedia
-         className={classes.cover}
-         image={props.cardContent.destination=="Universidad" ? Universidad : Casa}
-         title="Destino"
-         onClick={() => {
+          className={classes.cover}
+          image={props.cardContent.destination === "Universidad" ? Universidad : Casa}
+          title="Destino"
+          onClick={() => {
              alert("We are working on the maps. This is a sample");
          }}
        />

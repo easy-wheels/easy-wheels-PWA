@@ -7,11 +7,6 @@ import Button from '@material-ui/core/Button';
 
 export default class CreditCard extends React.Component{
 
-    constructor(props) {
-        super(props);
-
-    }
-
 
     render(){
         return(
