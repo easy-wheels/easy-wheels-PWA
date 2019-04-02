@@ -28,7 +28,7 @@ export default class MyCards extends React.Component{
                         );
                     }))}
                 </List>
-                <Link to="/mainView/coinpurse/addpayment">
+                <Link to="/coinpurse/addpayment">
                     <Fab style={style} aria-label="Add" color='primary'>
                         <AddIcon/>
                     </Fab>

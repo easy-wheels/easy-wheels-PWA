@@ -11,7 +11,7 @@ class History extends React.Component{
         const travels = [{"date":"2019-01-01","quantity":"-2500","method":"Pasajero"},
             {"date":"2019-01-03","quantity":"+4000","method":"Conductor"},
             {"date":"2019-01-02","quantity":"-3500","method":"Pasajero"},
-            {"date":"2019-01-04","quantity":"+4000","method":"Conductor"}]
+            {"date":"2019-01-04","quantity":"+4000","method":"Conductor"}];
         return(
             <>
                 <List>

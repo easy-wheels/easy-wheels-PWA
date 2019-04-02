@@ -1,12 +1,6 @@
 import React from 'react';
-import {BrowserRouter as Router, Link, Route} from 'react-router-dom';
-import { Redirect } from 'react-router-dom'
 import ScheduledTripsCard from "./ScheduledTripsCard";
-import NavigationDrawer from "./NavigationDrawer.js";
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import FloatingActionButton from "./FloatingActionButton.js"
-
 
 
 export class ScheduledTripsView extends React.Component{

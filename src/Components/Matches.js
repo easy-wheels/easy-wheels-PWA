@@ -39,7 +39,6 @@ class Matches extends React.Component {
 
 
   render() {
-    const { classes } = this.props;
     const tripsList = this.state.trips.map((trip) => {
       return (
           <Grid wrap="nowrap" item xs={12} sm={6}>
@@ -50,9 +49,7 @@ class Matches extends React.Component {
 
     return (
       <Grid container   spacing={24}>
-
           {tripsList}
-
       </Grid>
     );
   }

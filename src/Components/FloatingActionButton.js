@@ -21,7 +21,7 @@ function FloatingActionButton(props) {
     const {classes} = props;
     return (
         <div>
-            <Fab color="primary" aria-label="Add" component={Link} to="/mainView/scheduledTrips/create"
+            <Fab color="primary" aria-label="Add" component={Link} to="/scheduledTrips/create"
                  className={classes.fab}>
                 <AddIcon/>
             </Fab>

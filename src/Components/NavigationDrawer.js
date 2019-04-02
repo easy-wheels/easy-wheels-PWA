@@ -27,7 +27,7 @@ import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import MenuList from "@material-ui/core/MenuList";
 import CoinPurse from './CoinPurse.js';
-import {Route, Link} from "react-router-dom";
+import {Link, Route} from "react-router-dom";
 import MapView from './Maps/Maps';
 import AddPayment from './AddPayment.js';
 import History from './History';
@@ -35,21 +35,20 @@ import AddMoney from './AddMoney';
 import ScheduleTripsView from "./ScheduledTripsView";
 import CreateAndEditView from "./CreateAndEditView";
 import MyCards from "./MyCards";
-import NewUser from "./NewUser/NewUser";
 import Matches from './Matches';
 import Firebase from "../Firebase";
-import { Redirect } from 'react-router-dom'
 
 const firebase = Firebase.getInstance();
 
-const drawerWidth = 280;
+const drawerWidth = 256;
 
 const styles = theme => ({
     root: {
         display: 'flex',
+        minHeight: '100vh',
     },
     avatarBox: {
-        width: '80%',
+        width: '100%',
         maxWidth: 200,
         backgroundColor: theme.palette.background.paper,
 
@@ -80,6 +79,18 @@ const styles = theme => ({
     inline: {
         display: 'inline',
     },
+    item: {
+        marginLeft: 0,
+        marginRight: 0,
+        padding: 0,
+    },
+    itemAvatar: {
+        marginLeft: 0,
+        marginRight: 0,
+        padding: 0,
+        width: 250,
+        whiteSpace: "normal",
+    },
     drawer: {
         width: drawerWidth,
         flexShrink: 0,
@@ -101,7 +112,7 @@ const styles = theme => ({
         overflowX: 'hidden',
         width: theme.spacing.unit * 7 + 1,
         [theme.breakpoints.up('sm')]: {
-            width: theme.spacing.unit * 8,
+            width: theme.spacing.unit * 7,
         },
     },
     toolbar: {
@@ -113,7 +124,7 @@ const styles = theme => ({
     },
     content: {
         flexGrow: 1,
-        padding: theme.spacing.unit * 3,
+        padding: theme.spacing.unit * 2,
     },
     avatar: {
         margin: theme.spacing.unit - 10,
@@ -121,8 +132,6 @@ const styles = theme => ({
         height: 50,
     },
 });
-
-
 
 class NavigationDrawer extends React.Component {
 
@@ -154,8 +163,8 @@ class NavigationDrawer extends React.Component {
 
         return (
             <Fragment>
-                <CssBaseline/>
                 <div className={classes.root}>
+                    <CssBaseline/>
                     <AppBar
                         position="fixed"
                         className={classNames(classes.appBar, {
@@ -199,20 +208,20 @@ class NavigationDrawer extends React.Component {
                         </div>
                         <Divider/>
                         <List className={classes.avatarBox}>
-
                             <ListItem>
                                 <ListItemAvatar style={{
-                                    left: -5,
+                                    left: -8,
                                 }}>
                                     <Avatar>{firebase.isLoggedIn().displayName.charAt(0).toUpperCase()}</Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
+                                    className={classes.itemAvatar}
                                     primary={firebase.isLoggedIn().displayName}
                                     secondary={firebase.isLoggedIn().email}
                                 />
                                 <ListItemSecondaryAction style={{
                                     position: 'absolute',
-                                    left: 220,
+                                    left: 204,
                                     top: '50%',
                                     transform: 'translateY(-50%)',
                                 }}>
@@ -221,63 +230,60 @@ class NavigationDrawer extends React.Component {
                                     </IconButton>
                                 </ListItemSecondaryAction>
                             </ListItem>
-
                         </List>
                         <Divider/>
                         <MenuList>
-
-                            <ListItem button key="travell" component={Link} to="/mainView/">
-                                <ListItemIcon><DirectionsCarIcon/>
+                            <ListItem button key="travel" component={Link} to="/">
+                                <ListItemIcon className={classes.item}>
+                                    <DirectionsCarIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Programa tu vaje"/>
                             </ListItem>
-                            <ListItem button key="week" component={Link} to="/mainView/scheduledTrips">
-                                <ListItemIcon><DateRangeIcon/>
+                            <ListItem button key="week" component={Link} to="/scheduledTrips">
+                                <ListItemIcon className={classes.item}>
+                                    <DateRangeIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Programa tu semana"/>
                             </ListItem>
-                            <ListItem button key="tasks" component={Link} to="/mainView/coinpurse">
-                                <ListItemIcon><AtachMoneyIcon/>
+                            <ListItem button key="coinpurse" component={Link} to="/coinpurse">
+                                <ListItemIcon className={classes.item}>
+                                    <AtachMoneyIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Monedero"/>
                             </ListItem>
-                            <ListItem button key="tasks" component={Link} to="/mainView/matches">
-                                <ListItemIcon><MatchIcon/>
+                            <ListItem button key="matches" component={Link} to="/matches">
+                                <ListItemIcon className={classes.item}>
+                                    <MatchIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Viajes"/>
                             </ListItem>
 
-                            <div style={{bottom:-1000}}>
-                                <ListItem button key="sign-out" component={Link} to="/mainView/tasks">
-                                    <ListItemIcon><LaunchIcon/>
+                            <div style={{bottom:0}}>
+                                <ListItem button key="sign-out" component={Link} to="/">
+                                    <ListItemIcon className={classes.item}>
+                                        <LaunchIcon/>
                                     </ListItemIcon>
                                     <ListItemText primary="Cerrar sesion"/>
                                 </ListItem>
                             </div>
-
                         </MenuList>
-
-
                     </Drawer>
                     <main className={classes.content}>
                         <div className={classes.toolbar}/>
-                        <Route exact path={this.props.match.url + "/coinpurse"} component={CoinPurse}/>
-                        <Route exact path={this.props.match.url + "/matches"} component={Matches}/>
-                        <Route exact path={this.props.match.url + "/"} component={MapView}/>
-
-                        <Route path={this.props.match.url +"/coinpurse/addpayment" } component={AddPayment}/>
-                        <Route exact path={this.props.match.url +"/scheduledTrips" } component={ScheduleTripsView}/>
-                        <Route exact path={this.props.match.url +"/scheduledTrips/create" } component={CreateAndEditView}/>
-                        <Route path={this.props.match.url +"/coinpurse/addmoney"} component={AddMoney}/>
-                        <Route path={this.props.match.url +"/coinpurse/history"} component={History}/>
-                        <Route path={this.props.match.url +"/coinpurse/mycards"} component={MyCards}/>
+                        <Route exact path={"/coinpurse"} component={CoinPurse}/>
+                        <Route exact path={ "/matches"} component={Matches}/>
+                        <Route exact path={"/"} component={MapView}/>
+                        <Route exact path={"/coinpurse/addpayment" } component={AddPayment}/>
+                        <Route exact path={"/scheduledTrips" } component={ScheduleTripsView}/>
+                        <Route exact path={"/scheduledTrips/create" } component={CreateAndEditView}/>
+                        <Route exact path={"/coinpurse/addmoney"} component={AddMoney}/>
+                        <Route exact path={"/coinpurse/history"} component={History}/>
+                        <Route exact path={"/coinpurse/mycards"} component={MyCards}/>
                     </main>
                 </div>
             </Fragment>
         );
     }
-
-
 }
 
 NavigationDrawer.propTypes = {
