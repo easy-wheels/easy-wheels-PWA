@@ -259,7 +259,7 @@ class NavigationDrawer extends React.Component {
                             </ListItem>
 
                             <div style={{bottom:0}}>
-                                <ListItem button key="sign-out" component={Link} to="/">
+                                <ListItem button key="sign-out" onClick={this.LogOut}>
                                     <ListItemIcon className={classes.item}>
                                         <LaunchIcon/>
                                     </ListItemIcon>
