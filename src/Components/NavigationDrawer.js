@@ -214,11 +214,15 @@ class NavigationDrawer extends React.Component {
                                 }}>
                                     <Avatar>{firebase.isLoggedIn().displayName.charAt(0).toUpperCase()}</Avatar>
                                 </ListItemAvatar>
+
                                 <ListItemText
-                                    className={classes.itemAvatar}
                                     primary={firebase.isLoggedIn().displayName}
-                                    secondary={firebase.isLoggedIn().email}
+                                    secondary={
+                                        <Typography color="textSecondary" noWrap>
+                                            {firebase.isLoggedIn().email}
+                                        </Typography>}
                                 />
+
                                 <ListItemSecondaryAction style={{
                                     position: 'absolute',
                                     left: 204,
