@@ -64,30 +64,96 @@ const styles = {
 
 };
 const availableSeats = [
-  {
-    value: '1',
-    label: '1 Cupo',
-  },
-  {
-    value: '2',
-    label: '2 Cupos',
-  },
-  {
-    value: '3',
-    label: '3 Cupos',
-  },
-  {
-    value: '5',
-    label: '5 Cupos',
-  },
-  {
-    value: '6',
-    label: '6 Cupos',
-  },
-  {
-    value: '7',
-    label: '7 Cupos',
-  },
+    {
+        value: '1',
+        label: '1 Cupo',
+    },
+    {
+        value: '2',
+        label: '2 Cupos',
+    },
+    {
+        value: '3',
+        label: '3 Cupos',
+    },
+    {
+        value: '5',
+        label: '5 Cupos',
+    },
+    {
+        value: '6',
+        label: '6 Cupos',
+    },
+    {
+        value: '7',
+        label: '7 Cupos',
+    },
+
+];
+const availableDays = [
+    {
+        value: 'Monday',
+        label: 'Lunes',
+    },
+    {
+        value: 'Thuesday',
+        label: 'Martes',
+    },
+    {
+        value: 'Wenesday',
+        label: 'Miercoles',
+    },
+    {
+        value: 'Thursday',
+        label: 'Jueves',
+    },
+    {
+        value: 'Friday',
+        label: 'Viernes',
+    },
+    {
+        value: 'Saturday',
+        label: 'Sabado',
+    },
+
+];
+const availableHours = [
+    {
+        value: '7:00',
+        label: '7:00 AM',
+    },
+    {
+        value: '8:30',
+        label: '8:30 AM',
+    },
+    {
+        value: '10:00',
+        label: '10:00 AM',
+    },
+    {
+        value: '11:30',
+        label: '11:30 AM',
+    },
+    {
+        value: '13:00',
+        label: '1:00 PM',
+    },
+    {
+        value: '14:30',
+        label: '2:30 PM',
+    },
+    {
+        value: '16:00',
+        label: '4:00 PM',
+    },
+    {
+        value: '17:30',
+        label: '5:30 PM',
+    },
+    {
+        value: '19:00',
+        label: '7:00 PM',
+    },
 
 ];
 
@@ -96,7 +162,7 @@ class MapsContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            availableSeats: 1 ,
+            availableSeats: 1,
             snackbarOpen: false,
             driverMode: false,
             toUniversity: true,
@@ -106,7 +172,8 @@ class MapsContainer extends React.Component {
             selectedPlace: {},
             pathCoordinates: [],
             position: null,
-            dueDate: new Date(),
+            hour: "",
+            day:"",
             university: {lat: 4.782715, lng: -74.042611}
         };
         // binding this to event-handler functions
@@ -159,12 +226,12 @@ class MapsContainer extends React.Component {
     };
 
     handleChange = prop => event => {
-        this.setState({ [prop]: event.target.value });
+        this.setState({[prop]: event.target.value});
     };
 
     handleSwitchChange = name => event => {
-        this.setState({ [name]: event.target.checked });
-      };
+        this.setState({[name]: event.target.checked});
+    };
 
     //Set aux functions
     setCurrentPosition(position) {
@@ -309,7 +376,7 @@ class MapsContainer extends React.Component {
             <>
                 <Paper className={classes.root} elevation={1}>
                     <Grid container>
-                        <Grid wrap="nowrap" item xs={12} className={classes.position}>
+                        <Grid  item xs={12} className={classes.position}>
                             <IconButton className={classes.iconButton}
                                         onClick={() => this.setState({expanded: !this.state.expanded})}
                                         aria-label="Menu">
@@ -332,7 +399,7 @@ class MapsContainer extends React.Component {
                                     vertical: 'bottom',
                                     horizontal: 'right',
                                 }}
-                                style={{left:"unset"}}
+                                style={{left: "unset"}}
                                 open={this.state.snackbarOpen}
                                 onClose={this.handleSnackbarClose}
                                 autoHideDuration={6000}
@@ -355,57 +422,85 @@ class MapsContainer extends React.Component {
                                 ]}
                             />
                         </Grid>
-                        <Grid wrap="nowrap" item xs={12}>
+                        <Grid  item xs={12}>
                             <Collapse in={this.state.expanded} className={classes.absolute} timeout="auto"
                                       unmountOnExit>
                                 <CardContent>
                                     <Grid container spacing={24}>
+
                                         <Grid item xs={12} sm={6}>
-                                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                                <DateTimePicker
-                                                    label={this.state.toUniversity ? "Fecha y hora de llegada" : "Fecha y hora de salida"}
-                                                    clearable
-                                                    fullWidth
-                                                    variant="outlined"
-                                                    minutesStep={30}
-                                                    value={this.state.dueDate}
-                                                    onChange={date => this.setState({dueDate: date})}/>
-                                            </MuiPickersUtilsProvider>
+                                            <TextField
+                                                id="weekDay"
+                                                select
+                                                variant="outlined"
+                                                type='text'
+                                                label="Día del viaje"
+                                                fullWidth
+                                                value={this.state.day}
+                                                onChange={this.handleChange('day')}
+
+                                            >
+                                                {availableDays.map(option => (
+                                                    <MenuItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                id="hour"
+                                                select
+                                                variant="outlined"
+                                                type='text'
+                                                label={this.state.toUniversity ? "Hora de llegada" : "Hora de salida"}
+                                                fullWidth
+                                                value={this.state.hour}
+                                                onChange={this.handleChange('hour')}
+
+                                            >
+                                                {availableHours.map(option => (
+                                                    <MenuItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={6}>
                                             <FormControlLabel
-                                                      control={
-                                                        <Switch
-                                                          checked={this.state.toUniversity}
-                                                          onChange={this.handleSwitchChange('toUniversity')}
-                                                          value="toUniversity"
-                                                          color="primary"
-                                                        />
-                                                      }
-                                                      label={this.state.toUniversity ? "Viajas hacia la U" : "Viajas desde la U"}
-                                              />
-                                         </Grid>
+                                                control={
+                                                    <Switch
+                                                        checked={this.state.toUniversity}
+                                                        onChange={this.handleSwitchChange('toUniversity')}
+                                                        value="toUniversity"
+                                                        color="primary"
+                                                    />
+                                                }
+                                                label={this.state.toUniversity ? "Viajas hacia la U" : "Viajas desde la U"}
+                                            />
+                                        </Grid>
                                         {this.state.driverMode ?
                                             <Grid item xs={12} sm={6}>
                                                 <TextField
-                                                          id="availableSeats"
-                                                          select
-                                                          variant="outlined"
-                                                          type='text'
-                                                          label="Con cuantos cupos cuentas?"
-                                                          fullWidth
-                                                          value={this.state.availableSeats}
-                                                          onChange={this.handleChange('availableSeats')}
+                                                    id="availableSeats"
+                                                    select
+                                                    variant="outlined"
+                                                    type='text'
+                                                    label="Con cuantos cupos cuentas?"
+                                                    fullWidth
+                                                    value={this.state.availableSeats}
+                                                    onChange={this.handleChange('availableSeats')}
 
-                                                 >
-                                                 {availableSeats.map(option => (
-                                                             <MenuItem key={option.value} value={option.value}>
-                                                               {option.label}
-                                                             </MenuItem>
-                                                           ))}
-                                                  </TextField>
+                                                >
+                                                    {availableSeats.map(option => (
+                                                        <MenuItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </MenuItem>
+                                                    ))}
+                                                </TextField>
                                             </Grid>
-                                        :null
+                                            : null
                                         }
 
                                     </Grid>
