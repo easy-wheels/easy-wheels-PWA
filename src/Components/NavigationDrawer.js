@@ -218,6 +218,7 @@ class NavigationDrawer extends React.Component {
                                     className={classes.itemAvatar}
                                     primary={firebase.isLoggedIn().displayName}
                                     secondary={firebase.isLoggedIn().email}
+
                                 />
                                 <ListItemSecondaryAction style={{
                                     position: 'absolute',
