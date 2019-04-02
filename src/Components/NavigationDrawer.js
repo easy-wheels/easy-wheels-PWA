@@ -217,6 +217,7 @@ class NavigationDrawer extends React.Component {
 
                                 <ListItemText
                                     primary={firebase.isLoggedIn().displayName}
+
                                     secondary={
                                         <Typography color="textSecondary" noWrap>
                                             {firebase.isLoggedIn().email}

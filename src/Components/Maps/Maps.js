@@ -26,8 +26,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import FireBase from "../../Firebase";
-import {getDayAsString, getHoursAsString} from "../../DateManager";
-
 
 const firebase = FireBase.getInstance();
 
@@ -168,7 +166,7 @@ class MapsContainer extends React.Component {
             showingInfoWindow: false,
             activeMarker: {},
             selectedPlace: {},
-            pathCoordinates: [],
+            pathRoute: [],
             position: null,
             hour: "",
             day: "",
@@ -212,7 +210,8 @@ class MapsContainer extends React.Component {
         });
 
     handleClick = () => {
-        this.setState({snackbarOpen: true, driverMode: !this.state.driverMode});
+        const message = "Has cambiado tu rol a " + (this.state.driverMode ? "pasajero" : "conductor");
+        this.setState({snackbarOpen: true, driverMode: !this.state.driverMode, message:message});
     };
 
     handleSnackbarClose = (event, reason) => {
@@ -307,45 +306,76 @@ class MapsContainer extends React.Component {
         const {google, map} = this.props;
         if (!google || !map) return;
         const directionsService = new google.maps.DirectionsService();
-        const directionsDisplay = new google.maps.DirectionsRenderer();
-        directionsDisplay.setMap(map);
         directionsService.route({
             origin: this.state.userPosition,
             destination: this.state.university,
             travelMode: 'DRIVING',
-            drivingOptions: {
-                departureTime: this.state.dueDate
-            }
         }, (response, status) => {
             if (status === 'OK') {
-                directionsDisplay.setDirections(response);
-                const overViewCoords = response.routes[0].overview_path;
-                this.setState({pathCoordinates: overViewCoords});
+                const pathRoute = response.routes[0];
+                const message = "Duracion estimada: " + pathRoute.legs[0].duration.text;
+                this.setState({pathRoute: pathRoute,snackbarOpen: true, message:message});
                 console.log(response);
+                this.driverCreateTravel()
             } else {
                 window.alert('Directions request failed due to ' + status);
             }
         });
-        this.setState({loadV: true})
     }
 
-    //Google maps functions
+    convertLatLngToObject(array) {
+        return array.map(latLng => {return {lat:latLng.lat(),lng:latLng.lng()}})
+    }
+
+    convertObjectToLatLng(array) {
+        const {google} = this.props;
+        return array.map(obj => {return new google.maps.LatLng(obj.lat,obj.lng)})
+    }
+
+    //Firebase functions
     driverCreateTravel() {
-        firebase.addRoute(firebase.isLoggedIn().email,
-            getDayAsString(this.state.dueDate),
-            getHoursAsString(this.state.dueDate),
+        const points = this.convertLatLngToObject(this.state.pathRoute.overview_path);
+        firebase.addRoute(
+            firebase.isLoggedIn().email,
+            this.state.day,
+            this.state.hour,
             !this.state.toUniversity,
-            this.state.pathCoordinates)
-            .then(a => console.log(a));
+            points)
+            .then(document => {
+                firebase.addTrip(document.id,this.state.availableSeats).then(a => console.log(a))//Todo find TravelRequest before create Travel
+            });
+
     }
 
     userRequestTravel() {
-        firebase.addTripRequest(
-            firebase.isLoggedIn().email,
-            this.state.userPosition,
-            getDayAsString(this.state.dueDate),
-            getHoursAsString(this.state.dueDate),
-            !this.state.toUniversity)
+        const {google} = this.props;
+        firebase.getTripsWithDayAndHour(this.state.day,this.state.hour).then(routes => {
+            for(let i in routes){
+                const polyline = new google.maps.Polyline({
+                    path: routes[i].route.points
+                });
+                this.setState({pathRoute:{overview_path:routes[i].route.points} })
+                const userPosition = new google.maps.LatLng(this.state.userPosition.lat,this.state.userPosition.lng);
+                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.0005));
+                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.005));
+                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.05));
+                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.5));
+                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,1));
+                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,10));
+                if(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.005)){
+                    alert("Hay!!") //Todo Integrate with interface match User=>Driver
+                }else{
+                    this.setState({pathRoute:[]});
+                    firebase.addTripRequest(
+                        firebase.isLoggedIn().email,
+                        this.state.userPosition,
+                        this.state.day,
+                        this.state.hour,
+                        !this.state.toUniversity)
+                }
+            }
+
+        });
     }
 
     //React component functions
@@ -385,8 +415,6 @@ class MapsContainer extends React.Component {
                                            placeholder={this.state.toUniversity ? this.state.driverMode ? "Direccion de salida" : "Direccion de recogida" : "Direccion de destino"}
                                            autocomplete={this.setRefInput}/>
                             </FormControl>
-
-
                             <Divider className={classes.divider}/>
                             <IconButton color="primary" className={classes.iconButton} onClick={this.handleClick}
                                         aria-label="Directions">
@@ -404,8 +432,11 @@ class MapsContainer extends React.Component {
                                 ContentProps={{
                                     'aria-describedby': 'message-id',
                                 }}
-                                message={<span
-                                    id="message-id"> Has cambiado tu rol a {this.state.driverMode ? <>conductor</> : <>pasajero</>}</span>}
+                                message={
+                                    <span id="message-id">
+                                        {this.state.message}
+                                    </span>
+                                }
                                 action={[
 
                                     <IconButton
@@ -510,7 +541,7 @@ class MapsContainer extends React.Component {
                                 </CardContent>
                                 <CardActions>
                                     {this.state.driverMode ?
-                                        <Button size="medium" color="primary" onClick={this.driverCreateTravel}>
+                                        <Button size="medium" color="primary" onClick={this.setDirectionRoute}>
                                             Crear Viaje
                                         </Button>
                                         :
@@ -537,13 +568,32 @@ class MapsContainer extends React.Component {
                         initialCenter={this.state.university}
                         centerAroundCurrentLocation={false}
                     >
-                        <Marker
-                            onClick={this.onMarkerClick}
-                            title={'Escuela colombiana de ingenieria Julio Garavito'}
-                            position={this.state.university}
-                            name={'Escuela colombiana de ingenieria Julio Garavito'}
-                            description={'AK 45 #205-59 Bogota\nInstitucion universitaria'}
-                        />
+                        {this.state.driverMode?
+                            <Marker
+                                onClick={this.onMarkerClick}
+                                title={'Escuela colombiana de ingenieria Julio Garavito'}
+                                position={this.state.university}
+                                name={'Escuela colombiana de ingenieria Julio Garavito'}
+                                description={'AK 45 #205-59 Bogota\nInstitucion universitaria'}
+                            />
+                            :
+                            null
+                        }
+                        {this.state.pathRoute.overview_path ?
+                            (
+                                this.state.pathRoute.overview_path.map((point, i) => {
+                                    return (
+                                        <Marker
+                                            onClick={this.onMarkerClick}
+                                            title={i}
+                                            position={point}
+                                            name={i}
+                                            description={point}
+                                        />);
+                                })
+                            )
+                            : null
+                        }
                         <Marker
                             onClick={this.onMarkerClick}
                             title={'Si posicion'}
@@ -573,7 +623,7 @@ class MapsContainer extends React.Component {
                             </Paper>
                         </InfoWindow>
                         <Polyline
-                            path={this.state.pathCoordinates}
+                            path={this.state.pathRoute.overview_path}
                             strokeColor="#0000FF"
                             strokeOpacity={0.6}
                             strokeWeight={8}/>
