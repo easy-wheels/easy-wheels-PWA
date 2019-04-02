@@ -7,10 +7,9 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import {Link} from "react-router-dom";
-import logo from "./Images/car-logo.svg";
+import logo from "./Images/logo.svg";
 import Firebase from "../Firebase";
 
 const firebase = Firebase.getInstance();
@@ -47,8 +46,8 @@ const styles = theme => ({
     },
     bigAvatar: {
         margin: theme.spacing.unit,
-        width: 100,
-        height: 120,
+        width: 150,
+        height: 150,
     },
 });
 
@@ -76,9 +75,7 @@ class SignIn extends React.Component {
                 <main className={classes.main}>
                     <CssBaseline/>
                     <Paper className={classes.paper}>
-                        <Typography component="h1" variant="h5">
-                            Easy Wheels
-                        </Typography>
+
                         <img src={logo} alt="logoBigAvatar" className={classes.bigAvatar}/>
                         <form className={classes.form} onSubmit={this.handleLogin}>
                             <FormControl margin="normal" required fullWidth onChange={event =>
