@@ -18,8 +18,6 @@ import PropTypes from 'prop-types';
 import Collapse from "@material-ui/core/Collapse";
 import CardActions from "@material-ui/core/CardActions";
 import Grid from "@material-ui/core/Grid";
-import {DateTimePicker, MuiPickersUtilsProvider} from "material-ui-pickers";
-import DateFnsUtils from "@date-io/date-fns";
 import FormControl from "@material-ui/core/FormControl";
 import Snackbar from "@material-ui/core/Snackbar";
 import CloseIcon from '@material-ui/icons/Close';
@@ -173,7 +171,7 @@ class MapsContainer extends React.Component {
             pathCoordinates: [],
             position: null,
             hour: "",
-            day:"",
+            day: "",
             university: {lat: 4.782715, lng: -74.042611}
         };
         // binding this to event-handler functions
@@ -376,16 +374,16 @@ class MapsContainer extends React.Component {
             <>
                 <Paper className={classes.root} elevation={1}>
                     <Grid container>
-                        <Grid  item xs={12} className={classes.position}>
+                        <Grid item xs={12} className={classes.position}>
                             <IconButton className={classes.iconButton}
                                         onClick={() => this.setState({expanded: !this.state.expanded})}
                                         aria-label="Menu">
                                 <DetailsIcon/>
                             </IconButton>
                             <FormControl fullWidth onSubmit={e => e.preventDefault()}>
-                                <SearchBar
-                                    placeholder={this.state.toUniversity ? this.state.driverMode ? "Direccion de salida" : "Direccion de recogida" : "Direccion de destino"}
-                                    autocomplete={this.setRefInput}/>
+                                <SearchBar required
+                                           placeholder={this.state.toUniversity ? this.state.driverMode ? "Direccion de salida" : "Direccion de recogida" : "Direccion de destino"}
+                                           autocomplete={this.setRefInput}/>
                             </FormControl>
 
 
@@ -422,88 +420,93 @@ class MapsContainer extends React.Component {
                                 ]}
                             />
                         </Grid>
-                        <Grid  item xs={12}>
+                        <Grid item xs={12}>
                             <Collapse in={this.state.expanded} className={classes.absolute} timeout="auto"
                                       unmountOnExit>
                                 <CardContent>
-                                    <Grid container spacing={24}>
+                                    <form onSubmit={e => e.preventDefault()}>
+                                        <Grid container spacing={24}>
 
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                id="weekDay"
-                                                select
-                                                variant="outlined"
-                                                type='text'
-                                                label="Día del viaje"
-                                                fullWidth
-                                                value={this.state.day}
-                                                onChange={this.handleChange('day')}
-
-                                            >
-                                                {availableDays.map(option => (
-                                                    <MenuItem key={option.value} value={option.value}>
-                                                        {option.label}
-                                                    </MenuItem>
-                                                ))}
-                                            </TextField>
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                id="hour"
-                                                select
-                                                variant="outlined"
-                                                type='text'
-                                                label={this.state.toUniversity ? "Hora de llegada" : "Hora de salida"}
-                                                fullWidth
-                                                value={this.state.hour}
-                                                onChange={this.handleChange('hour')}
-
-                                            >
-                                                {availableHours.map(option => (
-                                                    <MenuItem key={option.value} value={option.value}>
-                                                        {option.label}
-                                                    </MenuItem>
-                                                ))}
-                                            </TextField>
-                                        </Grid>
-
-                                        <Grid item xs={12} sm={6}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Switch
-                                                        checked={this.state.toUniversity}
-                                                        onChange={this.handleSwitchChange('toUniversity')}
-                                                        value="toUniversity"
-                                                        color="primary"
-                                                    />
-                                                }
-                                                label={this.state.toUniversity ? "Viajas hacia la U" : "Viajas desde la U"}
-                                            />
-                                        </Grid>
-                                        {this.state.driverMode ?
                                             <Grid item xs={12} sm={6}>
                                                 <TextField
-                                                    id="availableSeats"
+                                                    required
+                                                    id="weekDay"
                                                     select
                                                     variant="outlined"
                                                     type='text'
-                                                    label="Con cuantos cupos cuentas?"
+                                                    label="Día del viaje"
                                                     fullWidth
-                                                    value={this.state.availableSeats}
-                                                    onChange={this.handleChange('availableSeats')}
+                                                    value={this.state.day}
+                                                    onChange={this.handleChange('day')}
 
                                                 >
-                                                    {availableSeats.map(option => (
+                                                    {availableDays.map(option => (
                                                         <MenuItem key={option.value} value={option.value}>
                                                             {option.label}
                                                         </MenuItem>
                                                     ))}
                                                 </TextField>
                                             </Grid>
-                                            : null
-                                        }
+                                            <Grid item xs={12} sm={6}>
+                                                <TextField
+                                                    required
+                                                    id="hour"
+                                                    select
+                                                    variant="outlined"
+                                                    type='text'
+                                                    label={this.state.toUniversity ? "Hora de llegada" : "Hora de salida"}
+                                                    fullWidth
+                                                    value={this.state.hour}
+                                                    onChange={this.handleChange('hour')}
 
-                                    </Grid>
+                                                >
+                                                    {availableHours.map(option => (
+                                                        <MenuItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </MenuItem>
+                                                    ))}
+                                                </TextField>
+                                            </Grid>
+
+                                            <Grid item xs={12} sm={6}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={this.state.toUniversity}
+                                                            onChange={this.handleSwitchChange('toUniversity')}
+                                                            value="toUniversity"
+                                                            color="primary"
+                                                        />
+                                                    }
+                                                    label={this.state.toUniversity ? "Viajas hacia la U" : "Viajas desde la U"}
+                                                />
+                                            </Grid>
+                                            {this.state.driverMode ?
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        required
+                                                        id="availableSeats"
+                                                        select
+                                                        variant="outlined"
+                                                        type='text'
+                                                        label="Con cuantos cupos cuentas?"
+                                                        fullWidth
+                                                        value={this.state.availableSeats}
+                                                        onChange={this.handleChange('availableSeats')}
+
+                                                    >
+                                                        {availableSeats.map(option => (
+                                                            <MenuItem key={option.value} value={option.value}>
+                                                                {option.label}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </TextField>
+                                                </Grid>
+                                                : null
+                                            }
+
+                                        </Grid>
+                                    </form>
                                 </CardContent>
                                 <CardActions>
                                     {this.state.driverMode ?
