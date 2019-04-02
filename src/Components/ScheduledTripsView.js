@@ -6,12 +6,7 @@ import FloatingActionButton from "./FloatingActionButton.js"
 export class ScheduledTripsView extends React.Component{
 
 
-    constructor(props) {
-        super(props);
-    }
-
     render(){
-        const { classes, theme } = this.props;
 
         return (
             <div>
