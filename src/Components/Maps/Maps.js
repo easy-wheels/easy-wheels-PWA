@@ -381,9 +381,9 @@ class MapsContainer extends React.Component {
                                 <DetailsIcon/>
                             </IconButton>
                             <FormControl fullWidth onSubmit={e => e.preventDefault()}>
-                                <SearchBar
-                                    placeholder={this.state.toUniversity ? this.state.driverMode ? "Direccion de salida" : "Direccion de recogida" : "Direccion de destino"}
-                                    autocomplete={this.setRefInput}/>
+                                <SearchBar required
+                                           placeholder={this.state.toUniversity ? this.state.driverMode ? "Direccion de salida" : "Direccion de recogida" : "Direccion de destino"}
+                                           autocomplete={this.setRefInput}/>
                             </FormControl>
 
 
@@ -429,6 +429,7 @@ class MapsContainer extends React.Component {
 
                                             <Grid item xs={12} sm={6}>
                                                 <TextField
+                                                    required
                                                     id="weekDay"
                                                     select
                                                     variant="outlined"
@@ -448,6 +449,7 @@ class MapsContainer extends React.Component {
                                             </Grid>
                                             <Grid item xs={12} sm={6}>
                                                 <TextField
+                                                    required
                                                     id="hour"
                                                     select
                                                     variant="outlined"
@@ -482,6 +484,7 @@ class MapsContainer extends React.Component {
                                             {this.state.driverMode ?
                                                 <Grid item xs={12} sm={6}>
                                                     <TextField
+                                                        required
                                                         id="availableSeats"
                                                         select
                                                         variant="outlined"
