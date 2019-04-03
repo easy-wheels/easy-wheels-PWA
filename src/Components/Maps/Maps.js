@@ -92,11 +92,11 @@ const availableDays = [
         label: 'Lunes',
     },
     {
-        value: 'Thuesday',
+        value: 'Tuesday',
         label: 'Martes',
     },
     {
-        value: 'Wenesday',
+        value: 'Wednesday',
         label: 'Miercoles',
     },
     {
@@ -245,7 +245,7 @@ class MapsContainer extends React.Component {
     //Set aux functions
     setCurrentPosition(position) {
         const latLng = {lat: position.coords.latitude, lng: position.coords.longitude};
-        // this.reverseGeocode(latLng);
+        this.reverseGeocode(latLng);
         this.setState({userPosition: latLng, position: latLng});
     }
 
@@ -394,6 +394,7 @@ class MapsContainer extends React.Component {
             let notFound = true;
             let meetingPoint = {distance: 1 << 30};
             let pathPoints = null;
+            let tripId=null;
             trips.forEach((trip) => {
                 const polyline = new google.maps.Polyline({
                     path: trip.route.points
@@ -402,25 +403,32 @@ class MapsContainer extends React.Component {
                 if (google.maps.geometry.poly.isLocationOnEdge(userPosition, polyline, toleranceMatch)) {
                     const point = this.getUserPointToRoute(userPosition, trip.route.points.map(this.convertObjectToLatLng));
                     if (point.distance < meetingPoint.distance) {
+                        tripId=trip.tripId
                         meetingPoint = point;
                         meetingPoint.driver = trip.route.driver;
                         pathPoints = {overview_path: trip.route.points.slice(Math.max(meetingPoint.index - 10,0), meetingPoint.index + 10)};
                     }
                 }
             });
-            if (pathPoints) {
-                const message = "Necesitas caminar " + meetingPoint.distance + "m";
-                this.setState({snackbarOpen: true, message: message, meetingPoint: meetingPoint, pathRoute: pathPoints})
-            } else {
-                this.setState({pathRoute: []});
-                firebase.addTripRequest(
-                    firebase.isLoggedIn().email,
-                    this.state.userPosition,
-                    this.state.day,
-                    this.state.hour,
-                    !this.state.toUniversity);
-                alert("No hemos encontrado una ruta cerca a tu ubicacion pero te hemos agregado a una lista de espera")
-            }
+            console.log(this.state.userPosition)
+            firebase.addTripRequest(
+                firebase.isLoggedIn().email,
+                this.state.userPosition,
+                this.state.day,
+                this.state.hour,
+                !this.state.toUniversity).then(tripRequest=>{
+                    if (pathPoints) {
+                        const message = "Necesitas caminar " + meetingPoint.distance + "m";
+                        console.log("HOLA" +this.state.day+" "+this.state.hour);
+                        firebase.enroleTripRequest(this.state.day,this.state.hour,tripRequest.id,tripId,meetingPoint).then(a=>console.log(a))
+                        this.setState({snackbarOpen: true, message: message, meetingPoint: meetingPoint, pathRoute: pathPoints})
+                    } else {
+                        this.setState({pathRoute: []});
+
+                        alert("No hemos encontrado una ruta cerca a tu ubicacion pero te hemos agregado a una lista de espera")
+                    }
+                   });
+
         });
     }
 
