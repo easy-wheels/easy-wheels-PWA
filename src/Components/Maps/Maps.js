@@ -92,11 +92,11 @@ const availableDays = [
         label: 'Lunes',
     },
     {
-        value: 'Thuesday',
+        value: 'Tuesday',
         label: 'Martes',
     },
     {
-        value: 'Wenesday',
+        value: 'Wednesday',
         label: 'Miercoles',
     },
     {
@@ -153,6 +153,8 @@ const availableHours = [
 
 ];
 
+const toleranceMatch = 0.0045;
+
 class MapsContainer extends React.Component {
 
     constructor(props) {
@@ -170,7 +172,9 @@ class MapsContainer extends React.Component {
             position: null,
             hour: "",
             day: "",
-            university: {lat: 4.782715, lng: -74.042611}
+            university: {lat: 4.782715, lng: -74.042611},
+            meetingPoint: null,
+            possiblePassengers: []
         };
         // binding this to event-handler functions
         this.onMarkerClick = this.onMarkerClick.bind(this);
@@ -181,6 +185,7 @@ class MapsContainer extends React.Component {
         this.setCurrentPosition = this.setCurrentPosition.bind(this);
         this.userRequestTravel = this.userRequestTravel.bind(this);
         this.driverCreateTravel = this.driverCreateTravel.bind(this);
+        this.convertObjectToLatLng = this.convertObjectToLatLng.bind(this);
 
         this.setDirectionRoute = this.setDirectionRoute.bind(this)
     }
@@ -211,7 +216,14 @@ class MapsContainer extends React.Component {
 
     handleClick = () => {
         const message = "Has cambiado tu rol a " + (this.state.driverMode ? "pasajero" : "conductor");
-        this.setState({snackbarOpen: true, driverMode: !this.state.driverMode, message:message});
+        this.setState({
+            snackbarOpen: true,
+            driverMode: !this.state.driverMode,
+            message: message,
+            pathRoute: [],
+            meetingPoint: null,
+            possiblePassengers: []
+        });
     };
 
     handleSnackbarClose = (event, reason) => {
@@ -233,7 +245,7 @@ class MapsContainer extends React.Component {
     //Set aux functions
     setCurrentPosition(position) {
         const latLng = {lat: position.coords.latitude, lng: position.coords.longitude};
-        // this.reverseGeocode(latLng);
+        this.reverseGeocode(latLng);
         this.setState({userPosition: latLng, position: latLng});
     }
 
@@ -315,7 +327,6 @@ class MapsContainer extends React.Component {
                 const pathRoute = response.routes[0];
                 const message = "Duracion estimada: " + pathRoute.legs[0].duration.text;
                 this.setState({pathRoute: pathRoute,snackbarOpen: true, message:message});
-                console.log(response);
                 this.driverCreateTravel()
             } else {
                 window.alert('Directions request failed due to ' + status);
@@ -327,14 +338,16 @@ class MapsContainer extends React.Component {
         return array.map(latLng => {return {lat:latLng.lat(),lng:latLng.lng()}})
     }
 
-    convertObjectToLatLng(array) {
+    convertObjectToLatLng(obj) {
         const {google} = this.props;
-        return array.map(obj => {return new google.maps.LatLng(obj.lat,obj.lng)})
+        return new google.maps.LatLng(obj.lat,obj.lng)
     }
 
     //Firebase functions
     driverCreateTravel() {
+        const {google} = this.props;
         const points = this.convertLatLngToObject(this.state.pathRoute.overview_path);
+        const polyline = new google.maps.Polyline({path: this.state.pathRoute.overview_path});
         firebase.addRoute(
             firebase.isLoggedIn().email,
             this.state.day,
@@ -342,40 +355,95 @@ class MapsContainer extends React.Component {
             !this.state.toUniversity,
             points)
             .then(document => {
-                firebase.addTrip(document.id,this.state.availableSeats).then(a => console.log(a))//Todo find TravelRequest before create Travel
-            });
+                firebase.addTrip(document.id,this.state.availableSeats).then(docTrip =>{
+                    console.log(docTrip);
+                    firebase.getTripRequestsByDayAndHour(this.state.day,this.state.hour).then(tripsRequests => {
+                        const possiblePassengers = [];
+                        tripsRequests.forEach( (request) => {
+                            if(request.toHome === !this.state.toUniversity && possiblePassengers.length < this.state.availableSeats){
+                                const point = new google.maps.LatLng(request.point.latitude,request.point.longitude);
+                                if(google.maps.geometry.poly.isLocationOnEdge(point,polyline,toleranceMatch)){
+                                    request.point = {lat:request.point.latitude,lng:request.point.longitude};
+                                    possiblePassengers.push(request)
+                                }
+                            }
+                        });
+                        if(possiblePassengers.length !== 0){
+                            console.log("Match with:");
+                            this.setState({possiblePassengers:possiblePassengers});
+                            console.log(possiblePassengers);
+                            possiblePassengers.forEach((passanger) =>
+                                firebase.addPasangerToTrip(
+                                    docTrip.id,
+                                    this.state.day,
+                                    this.state.hour,
+                                    passanger.user.email,
+                                    passanger.point)
+                                    .then(a => console.log(a))
 
+                            )
+                        }
+                    })
+                })
+            });
     }
 
     userRequestTravel() {
         const {google} = this.props;
-        firebase.getTripsWithDayAndHour(this.state.day,this.state.hour).then(routes => {
-            for(let i in routes){
+        firebase.getTripsWithDayAndHour(this.state.day, this.state.hour).then(trips => {
+            let notFound = true;
+            let meetingPoint = {distance: 1 << 30};
+            let pathPoints = null;
+            let tripId=null;
+            trips.forEach((trip) => {
                 const polyline = new google.maps.Polyline({
-                    path: routes[i].route.points
+                    path: trip.route.points
                 });
-                this.setState({pathRoute:{overview_path:routes[i].route.points} })
-                const userPosition = new google.maps.LatLng(this.state.userPosition.lat,this.state.userPosition.lng);
-                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.0005));
-                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.005));
-                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.05));
-                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.5));
-                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,1));
-                console.log(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,10));
-                if(google.maps.geometry.poly.isLocationOnEdge(userPosition,polyline,0.005)){
-                    alert("Hay!!") //Todo Integrate with interface match User=>Driver
-                }else{
-                    this.setState({pathRoute:[]});
-                    firebase.addTripRequest(
-                        firebase.isLoggedIn().email,
-                        this.state.userPosition,
-                        this.state.day,
-                        this.state.hour,
-                        !this.state.toUniversity)
+                const userPosition = this.convertObjectToLatLng(this.state.userPosition);
+                if (google.maps.geometry.poly.isLocationOnEdge(userPosition, polyline, toleranceMatch)) {
+                    const point = this.getUserPointToRoute(userPosition, trip.route.points.map(this.convertObjectToLatLng));
+                    if (point.distance < meetingPoint.distance) {
+                        tripId=trip.tripId
+                        meetingPoint = point;
+                        meetingPoint.driver = trip.route.driver;
+                        pathPoints = {overview_path: trip.route.points.slice(Math.max(meetingPoint.index - 10,0), meetingPoint.index + 10)};
+                    }
                 }
-            }
+            });
+            console.log(this.state.userPosition)
+            firebase.addTripRequest(
+                firebase.isLoggedIn().email,
+                this.state.userPosition,
+                this.state.day,
+                this.state.hour,
+                !this.state.toUniversity).then(tripRequest=>{
+                    if (pathPoints) {
+                        const message = "Necesitas caminar " + meetingPoint.distance + "m";
+                        console.log("HOLA" +this.state.day+" "+this.state.hour);
+                        firebase.enroleTripRequest(this.state.day,this.state.hour,tripRequest.id,tripId,meetingPoint).then(a=>console.log(a))
+                        this.setState({snackbarOpen: true, message: message, meetingPoint: meetingPoint, pathRoute: pathPoints})
+                    } else {
+                        this.setState({pathRoute: []});
+
+                        alert("No hemos encontrado una ruta cerca a tu ubicacion pero te hemos agregado a una lista de espera")
+                    }
+                   });
 
         });
+    }
+
+    getUserPointToRoute(userLocation, pathRoute) {
+        const {google} = this.props;
+        let minDistance = 1 << 30;
+        let index = pathRoute.length;
+        pathRoute.forEach((point, i) => {
+            const dis = google.maps.geometry.spherical.computeDistanceBetween(point, userLocation);
+            if (minDistance > dis) {
+                minDistance = dis;
+                index = i;
+            }
+        });
+        return {index: index, distance: Math. round(minDistance), point: pathRoute[index]};
     }
 
     //React component functions
@@ -524,7 +592,6 @@ class MapsContainer extends React.Component {
                                                         fullWidth
                                                         value={this.state.availableSeats}
                                                         onChange={this.handleChange('availableSeats')}
-
                                                     >
                                                         {availableSeats.map(option => (
                                                             <MenuItem key={option.value} value={option.value}>
@@ -555,7 +622,6 @@ class MapsContainer extends React.Component {
                     </Grid>
                 </Paper>
                 <div className='center-map'>
-
                     <Map
                         mapTypeControl={false}
                         item
@@ -579,20 +645,27 @@ class MapsContainer extends React.Component {
                             :
                             null
                         }
-                        {this.state.pathRoute.overview_path ?
-                            (
-                                this.state.pathRoute.overview_path.map((point, i) => {
+
+                        {this.state.meetingPoint?
+                            <Marker
+                                onClick={this.onMarkerClick}
+                                title={"Punto de encuentro con el conductor"}
+                                position={this.state.meetingPoint.point}
+                                name={"Punto de encuentro con "+this.state.meetingPoint.driver.name}
+                                description={"vas a tener que caminar "+this.state.meetingPoint.distance+"m"}
+                            />
+                            : null
+                        }
+                        {this.state.possiblePassengers.map((passenger, i) => {
                                     return (
                                         <Marker
                                             onClick={this.onMarkerClick}
                                             title={i}
-                                            position={point}
-                                            name={i}
-                                            description={point}
+                                            position={passenger.point}
+                                            name={passenger.user.name}
+                                            description={"Pasajero número "+(i+1)}
                                         />);
                                 })
-                            )
-                            : null
                         }
                         <Marker
                             onClick={this.onMarkerClick}
@@ -624,7 +697,7 @@ class MapsContainer extends React.Component {
                         </InfoWindow>
                         <Polyline
                             path={this.state.pathRoute.overview_path}
-                            strokeColor="#0000FF"
+                            strokeColor={this.state.toUniversity? "#0000FF":"#FF0000"}
                             strokeOpacity={0.6}
                             strokeWeight={8}/>
                     </Map>

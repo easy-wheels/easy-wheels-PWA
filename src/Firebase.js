@@ -313,7 +313,7 @@ class Firebase {
                     Firebase.getInstance().db.collection("trips/"+day+" "+hour+"/trips/"+tripId+"/passengers")
                         .add({
                             passenger:Firebase.getInstance().db.doc("/users/"+userId),
-                            point:new firebase.firestore.GeoPoint(point.latitude,point.longitude)
+                            point: point
                         })
                         .then(result => resolve(result))
                 })
@@ -330,7 +330,7 @@ class Firebase {
                         .collection("tripRequest")
                         .add({
                             user:Firebase.getInstance().db.doc("users/"+userId),
-                            point:new firebase.firestore.GeoPoint(point.lat,point.lng),
+                            point:new firebase.firestore.GeoPoint(point.lat(),point.lng()),
                             toHome:toHome
                         })
                         .then(result => resolve(result))
@@ -371,18 +371,20 @@ class Firebase {
     deleteTripRequestByTimeAndId = (day, time, id) => this.db.collection("tripRequests")
         .doc(day+" "+time).collection("tripRequest").doc(id).delete();
 
-    enroleTripRequest = (day, hour, idTripRequest, idTrip) =>{
+    enroleTripRequest = (day, hour, idTripRequest, idTrip, point) =>{
         return new Promise(function (resolve, reject) {
             var tripRequest = Firebase.getInstance().db.collection("tripRequests").doc(day+" "+hour)
-                .collection("tripRequest").doc(idTripRequest);
-            Firebase.getInstance().getTripRequestByDoc(tripRequest)
-                .then(result =>{
-                    tripRequest.delete();
-                    Firebase.getInstance().addPassengerToTrip(idTrip, day, hour, result.user.email, result.point)
-                        .then(r => {
-                            resolve(r)
-                        })
-                })
+                .collection("tripRequest").doc(idTripRequest).get().then(a => {
+                    Firebase.getInstance().getTripRequestByDoc(a)
+                                    .then(result =>{
+                                        Firebase.getInstance().addPassengerToTrip(idTrip, day, hour, result.user.email, point)
+                                            .then(r => {
+                                                Firebase.getInstance().deleteTripRequestByTimeAndId(day,hour,idTripRequest);
+                                                resolve(r)
+                                            })
+                                    })
+                });
+
         })
     };
 
