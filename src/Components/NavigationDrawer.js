@@ -212,9 +212,8 @@ class NavigationDrawer extends React.Component {
                                 <ListItemAvatar style={{
                                     left: -8,
                                 }}>
-                                    <Avatar>{firebase.isLoggedIn().displayName.charAt(0).toUpperCase()}</Avatar>
+                                {firebase.isLoggedIn().displayName?<Avatar>{firebase.isLoggedIn().displayName.charAt(0).toUpperCase()}</Avatar>:<Avatar>A</Avatar>}
                                 </ListItemAvatar>
-
                                 <ListItemText
                                     primary={firebase.isLoggedIn().displayName}
 

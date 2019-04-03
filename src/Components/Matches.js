@@ -21,27 +21,33 @@ class Matches extends React.Component {
         this.state = {
             spacing: '16',
             trips: [],
-            loading: "",
+            loading: true,
 
         };
     }
 
 
     componentDidMount() {
-        this.setState({ loading: true });
-        firebase.getTripsAsPassenger(firebase.isLoggedIn().email).then(a =>
+        firebase.getTripsAsPassenger(firebase.isLoggedIn().email).then(a =>{
             firebase.getTripsAsDriver(firebase.isLoggedIn().email).then(b => {
-                this.setState({trips: a.concat(b),loading: false})}))
+                console.log(a)
+                a=[a]
+
+                this.setState({trips:b.concat(a) ,loading:false})
+                })
+            })
+
+
     }
 
     render() {
         const tripsList = this.state.trips.map((trip) => {
-            console.log(trip);
+            if(trip.length > 0){
             return (
                 <Grid key={trip[0].tripId} item xs={12} sm={6}>
                     <TripCard trip={trip[0]}/>
                 </Grid>
-            );
+            );}
         });
 
         return (

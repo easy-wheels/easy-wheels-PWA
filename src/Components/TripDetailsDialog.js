@@ -160,7 +160,7 @@ class TripDetailsDialog extends React.Component {
                                                                 route={this.props.trip.route.points}
                                                                 dragableMarker={rowData.point}
                                                                 markerTitle={"Punto de recogida de "}
-                                                                setPoint={}
+
                                                             />
                                                         </div>
 
