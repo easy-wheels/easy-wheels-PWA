@@ -92,7 +92,7 @@ const availableDays = [
         label: 'Lunes',
     },
     {
-        value: 'Thuesday',
+        value: 'Tuesday',
         label: 'Martes',
     },
     {
@@ -233,7 +233,7 @@ class MapsContainer extends React.Component {
     //Set aux functions
     setCurrentPosition(position) {
         const latLng = {lat: position.coords.latitude, lng: position.coords.longitude};
-        // this.reverseGeocode(latLng);
+        this.reverseGeocode(latLng);
         this.setState({userPosition: latLng, position: latLng});
     }
 
