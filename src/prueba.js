@@ -68,6 +68,9 @@ class prueba{
         //firebase.getAllTrips().then(a => console.log(a));
         //firebase.getTripsWithDayAndHour("Thuesday", "14:30").then(a => console.log(a))
         //firebase.getTripsAsPassenger("laura.hernandez-g@mail.escuelaing.edu.co").then(a => console.log(a))
+        //firebase.getTripsAsPassenger("nicolas.garcia-r@mail.escuelaing.edu.co").then(a=>console.log(a));
+        //firebase.getTripRequestsByEmail("nicolas.garcia-r@mail.escuelaing.edu.co").then(a=>console.log(a));
+        //
     }
 }
 
