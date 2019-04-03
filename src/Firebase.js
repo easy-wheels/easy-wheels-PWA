@@ -313,7 +313,7 @@ class Firebase {
                     Firebase.getInstance().db.collection("trips/"+day+" "+hour+"/trips/"+tripId+"/passengers")
                         .add({
                             passenger:Firebase.getInstance().db.doc("/users/"+userId),
-                            point:new firebase.firestore.GeoPoint(point.latitude,point.longitude)
+                            point: point
                         })
                         .then(result => resolve(result))
                 })
