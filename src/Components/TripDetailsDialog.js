@@ -62,6 +62,7 @@ class TripDetailsDialog extends React.Component {
     };
 
     componentWillMount() {
+        console.log(this.props.trip)
         this.setState({loading: true})
         firebase.getTripRequestsByDayAndHour(this.props.trip.route.time.split(" ")[0], this.props.trip.route.time.split(" ")[1]).then(a => {
             this.setState({possiblePassengers: a, loading: false})

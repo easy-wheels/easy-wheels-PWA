@@ -29,12 +29,16 @@ class Matches extends React.Component {
 
     componentDidMount() {
         firebase.getTripsAsPassenger(firebase.isLoggedIn().email).then(a =>{
-            firebase.getTripsAsDriver(firebase.isLoggedIn().email).then(b => {
-                console.log(a)
-                a=[a]
+            firebase.getTripsAsDriver(firebase.isLoggedIn().email).then(b =>
+           firebase.getTripRequestsByEmail(firebase.isLoggedIn().email).then(c=>{
+                   console.log(a)
+                   console.log(b)
+                   console.log(c)
+                    a=[a]
+                     this.setState({trips:b.concat(a) ,loading:false})
+                   })
 
-                this.setState({trips:b.concat(a) ,loading:false})
-                })
+                )
             })
 
 

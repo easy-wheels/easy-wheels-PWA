@@ -279,6 +279,7 @@ class Firebase {
                             var tripsAsPassenger = [];
                             trips.map(trip=>{
                                 trip[0].passengers.map(passenger => {
+                                    console.log(passenger)
                                     if(passenger.passenger.email===email){
                                         tripsAsPassenger.push(trip[0])
                                     }
@@ -330,7 +331,7 @@ class Firebase {
                         .collection("tripRequest")
                         .add({
                             user:Firebase.getInstance().db.doc("users/"+userId),
-                            point:new firebase.firestore.GeoPoint(point.lat(),point.lng()),
+                            point:new firebase.firestore.GeoPoint(point.lat,point.lng),
                             toHome:toHome
                         })
                         .then(result => resolve(result))

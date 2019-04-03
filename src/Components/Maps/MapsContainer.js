@@ -62,6 +62,22 @@ class GoogleMapsContainer extends React.Component {
 
 
     };
+    reverseGeocode(latLng) {
+            const {google} = this.props;
+            const geocoder = new google.maps.Geocoder;
+            geocoder.geocode({'location': latLng}, (results, status) => {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        this.autocomplete.value = results[0].formatted_address;
+
+                    } else {
+                        this.autocomplete.value = "Posición desconocida";
+                    }
+                } else {
+                    this.autocomplete.value = "Posición desconocida";
+                }
+            });
+        }
 
     render() {
         if (!this.props.loaded) return <h1>Loading...</h1>;
