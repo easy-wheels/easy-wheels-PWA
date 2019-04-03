@@ -309,8 +309,8 @@ class MapsContainer extends React.Component {
                 map.setCenter(place.geometry.location);
                 map.setZoom(17);
             }
-
-            this.setState({position: place.geometry.location, userPosition: place.geometry.location});
+            const userPosition = {lat:place.geometry.location.lat(),lng:place.geometry.location.lng()}
+            this.setState({position: place.geometry.location, userPosition: userPosition});
         });
     }
 
@@ -356,7 +356,6 @@ class MapsContainer extends React.Component {
             points)
             .then(document => {
                 firebase.addTrip(document.id,this.state.availableSeats).then(docTrip =>{
-                    console.log(docTrip);
                     firebase.getTripRequestsByDayAndHour(this.state.day,this.state.hour).then(tripsRequests => {
                         const possiblePassengers = [];
                         tripsRequests.forEach( (request) => {
@@ -369,19 +368,18 @@ class MapsContainer extends React.Component {
                             }
                         });
                         if(possiblePassengers.length !== 0){
-                            console.log("Match with:");
+
                             this.setState({possiblePassengers:possiblePassengers});
-                            console.log(possiblePassengers);
-                            possiblePassengers.forEach((passanger) =>
-                                firebase.addPasangerToTrip(
-                                    docTrip.id,
+                            possiblePassengers.forEach((passenger) =>{
+                                firebase.enroleTripRequest(
                                     this.state.day,
                                     this.state.hour,
-                                    passanger.user.email,
-                                    passanger.point)
-                                    .then(a => console.log(a))
+                                    passenger.tripRequestId,
+                                    docTrip.id,
+                                    passenger.point)
 
-                            )
+
+                            })
                         }
                     })
                 })
@@ -410,7 +408,7 @@ class MapsContainer extends React.Component {
                     }
                 }
             });
-            console.log(this.state.userPosition)
+
             firebase.addTripRequest(
                 firebase.isLoggedIn().email,
                 this.state.userPosition,
@@ -419,8 +417,8 @@ class MapsContainer extends React.Component {
                 !this.state.toUniversity).then(tripRequest=>{
                     if (pathPoints) {
                         const message = "Necesitas caminar " + meetingPoint.distance + "m";
-                        console.log("HOLA" +this.state.day+" "+this.state.hour);
-                        firebase.enroleTripRequest(this.state.day,this.state.hour,tripRequest.id,tripId,meetingPoint).then(a=>console.log(a))
+                        const pointT = {lat:meetingPoint.point.lat(),lng:meetingPoint.point.lng()}
+                        firebase.enroleTripRequest(this.state.day,this.state.hour,tripRequest.id,tripId,pointT)
                         this.setState({snackbarOpen: true, message: message, meetingPoint: meetingPoint, pathRoute: pathPoints})
                     } else {
                         this.setState({pathRoute: []});
@@ -443,7 +441,7 @@ class MapsContainer extends React.Component {
                 index = i;
             }
         });
-        return {index: index, distance: Math. round(minDistance), point: pathRoute[index]};
+        return {index: index, distance: Math.round(minDistance), point: pathRoute[index]};
     }
 
     //React component functions
