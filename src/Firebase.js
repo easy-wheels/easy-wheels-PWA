@@ -149,12 +149,9 @@ class Firebase {
             col.docs.map(doc =>{
                 promises.push(new Promise(function (resolve, reject) {
                     Firebase.getInstance().getUserById(doc.data().driver.id.replace(/\s/g,'')).then(driver =>{
-                        return({toHome:doc.data().toHome, time:doc.data().time, driver:driver, routeId:doc.id});
+                        return({toHome:doc.data().toHome, time:doc.data().time, driver:driver, routeId:doc.id, points:doc.data().points});
                     }).then(result =>{
-                        Firebase.getInstance().getPointsRoute(doc.id).then(points =>{
-                            result.points = points;
-                            resolve(result);
-                        });
+                        resolve(result);
                     });
                 }));
             });
@@ -225,6 +222,8 @@ class Firebase {
 
     // ** TRIPS
 
+
+
     getTripsWithDayAndHour = (day, hour) =>
         this.db.collection("trips").doc(day+" "+hour).collection("trips").get()
             .then(function (col) {
@@ -260,7 +259,7 @@ class Firebase {
 
     getPassengerWithDoc=(doc)=>{
         return new Promise(function (resolve, reject) {
-            Firebase.getInstance().getUserById(doc.data().passenger.id)
+            Firebase.getInstance().getUserById(doc.data().passenger.id.replace(/\s/g,''))
                 .then(user =>{
                     resolve({passenger:user,point:{latitude:doc.data().point.latitude,longitude:doc.data().point.longitude}})
                 })
@@ -270,6 +269,66 @@ class Firebase {
     deleteTripByTimeAndId = (day,hour,id) => this.db.collection("trips").doc(day+" "+hour)
         .collection("trips").doc(id).delete();
 
+    getAllTrips = () => {
+        return new Promise(function(resolve, reject){
+            Firebase.getInstance().db.collection("trips").get()
+                .then(function(col){
+                    var ids = [];
+                    col.docs.map(doc =>{
+                        ids.push(doc.id.split(" "))
+                    })
+                    var promises = [];
+                    ids.map(id => {
+                        promises.push(Firebase.getInstance().getTripsWithDayAndHour(id[0], id[1]));
+                    })
+                    Promise.all(promises).then(results => {
+                        var trips = []
+                        results.map(result => {
+                            if(result.length>0){
+                                trips.push(result)
+                            }
+                        })
+                        resolve(trips)
+                    })
+                })
+        })
+    }
+
+    getTripsAsDriver = (email) => {
+        return new Promise(function(resolve, reject){
+            Firebase.getInstance().getAllTrips()
+                .then(result=>{
+                    var trips = [];
+                    result.map(trip => {
+                        if(trip[0].route.driver.email===email){
+                            trips.push(trip)
+                        }
+                    })
+                    resolve(trips);
+                })
+        })
+    }
+
+    getTripsAsPassenger = (email) =>{
+        return new Promise(function(resolve, reject){
+                    Firebase.getInstance().getAllTrips()
+                        .then(trips => {
+                            var tripsAsPassenger = [];
+                            trips.map(trip=>{
+                                trip[0].passengers.map(passenger => {
+                                    if(passenger.passenger.email===email){
+                                        tripsAsPassenger.push(trip[0])
+                                    }
+                                })
+                            })
+                            resolve(tripsAsPassenger)
+                        })
+                })
+    }
+
+    //TODO
+    completeTrip = (day, hour, id) => {
+    }
 
     /**getAllTrips = () => this.db.collection("trips").get()
         .then(col => {
@@ -412,6 +471,10 @@ class Firebase {
 
     deleteTripRequestByTimeAndId = (day, time, id) => this.db.collection("tripRequests")
         .doc(day+" "+time).collection("tripRequest").doc(id).delete();
+
+    //TODO
+    enroleTripRequest = (idTripRequest, idTrip) =>{
+    }
 
     static getInstance = () => Firebase.firebase;
 }

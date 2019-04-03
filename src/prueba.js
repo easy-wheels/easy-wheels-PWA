@@ -64,7 +64,10 @@ class prueba{
         //DELETE TRIP
         /**firebase.deleteTripRequestByTimeAndId("Tuesday","8:30",
          ihLhrnJNl8npkvEd2uIv) **/
-
+        //firebase.getTripsAsDriver("sergio.rodriguez-tor@mail.escuelaing.edu.co").then(a => console.log(a))
+        //firebase.getAllTrips().then(a => console.log(a));
+        //firebase.getTripsWithDayAndHour("Thuesday", "14:30").then(a => console.log(a))
+        firebase.getTripsAsPassenger("laura.hernandez-g@mail.escuelaing.edu.co").then(a => console.log(a))
     }
 }
 

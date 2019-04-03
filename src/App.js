@@ -5,8 +5,11 @@ import NavigationDrawer from "./Components/NavigationDrawer";
 import NewUser from "./Components/NewUser/NewUser";
 import FireBase from "./Firebase"
 import CircularProgress from "@material-ui/core/CircularProgress";
+import prueba from "./prueba";
 
 const firebase = FireBase.getInstance();
+
+const prueba1 = new prueba();
 
 class App extends Component {
     constructor(props){
