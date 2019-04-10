@@ -279,6 +279,7 @@ class Firebase {
                             var tripsAsPassenger = [];
                             trips.map(trip=>{
                                 trip[0].passengers.map(passenger => {
+                                    console.log(passenger)
                                     if(passenger.passenger.email===email){
                                         tripsAsPassenger.push(trip[0])
                                     }
@@ -345,7 +346,7 @@ class Firebase {
                 .then(function (col) {
                     var promises = [];
                     col.docs.map(doc =>{
-                        promises.push(Firebase.getInstance().getTripRequestByDoc(doc))
+                        promises.push(Firebase.getInstance().getTripRequestByDoc(doc,day, hour))
                     });
 
                     resolve(Promise.all(promises));
@@ -353,7 +354,7 @@ class Firebase {
         })
     };
 
-    getTripRequestByDoc= (doc) => {
+    getTripRequestByDoc= (doc,day, hour) => {
         return new Promise(function (resolve, reject) {
             Firebase.getInstance().getUserById(doc.data().user.id)
                 .then(user => {
@@ -362,27 +363,54 @@ class Firebase {
                             point: {latitude: doc.data().point.latitude, longitude: doc.data().point.longitude},
                             toHome: doc.data().toHome,
                             user: user,
-                            tripRequestId:doc.id
+                            tripRequestId:doc.id,
+                            time:day+" "+hour
                         })
                 })
         })
     };
 
+    getTripRequestsByEmail = (email) => {
+        return new Promise(function (resolve,reject){
+            Firebase.getInstance().db.collection("tripRequests").get()
+                .then(function(col){
+                    var promises = []
+                    col.docs.map(doc =>{
+                        var id = doc.id.split(" ")
+                        promises.push(Firebase.getInstance().getTripRequestsByDayAndHour(id[0],id[1]))
+                    })
+                    Promise.all(promises)
+                        .then(result=>{
+                            var tripsByEmail = [];
+                            result.map(array=>{
+                                array.map(trip=>{
+                                if(trip.user.email===email)
+                                    tripsByEmail.push(trip)
+                                })
+                            })
+                            resolve(tripsByEmail);
+                        })
+                })
+        })
+    }
+
     deleteTripRequestByTimeAndId = (day, time, id) => this.db.collection("tripRequests")
         .doc(day+" "+time).collection("tripRequest").doc(id).delete();
 
-    enroleTripRequest = (day, hour, idTripRequest, idTrip) =>{
+    enroleTripRequest = (day, hour, idTripRequest, idTrip, point) =>{
         return new Promise(function (resolve, reject) {
             var tripRequest = Firebase.getInstance().db.collection("tripRequests").doc(day+" "+hour)
-                .collection("tripRequest").doc(idTripRequest);
-            Firebase.getInstance().getTripRequestByDoc(tripRequest)
-                .then(result =>{
-                    tripRequest.delete();
-                    Firebase.getInstance().addPassengerToTrip(idTrip, day, hour, result.user.email, result.point)
-                        .then(r => {
-                            resolve(r)
-                        })
-                })
+                .collection("tripRequest").doc(idTripRequest).get().then(a => {
+                    Firebase.getInstance().getTripRequestByDoc(a,day, hour)
+                                    .then(result =>{
+                                        Firebase.getInstance().addPassengerToTrip(idTrip, day, hour, result.user.email, point)
+                                            .then(r => {
+                                                Firebase.getInstance().deleteTripRequestByTimeAndId(day,hour,idTripRequest);
+                                                resolve(r)
+                                            })
+                                    })
+                });
+
         })
     };
 
