@@ -34,7 +34,7 @@ class App extends Component {
                                 </Switch>
                                 :
                                 <Switch>
-                                    <Route exact path="/" component={()=> <Login updateLogged={this.updateLogged}/>}/>
+                                    <Route exact path="/" component={() => <Login updateLogged={this.updateLogged}/>}/>
                                     <Route path={"/NewUser"} component={NewUser}/>
                                 </Switch>
                             }

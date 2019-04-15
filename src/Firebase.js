@@ -414,6 +414,91 @@ class Firebase {
         })
     };
 
+    //User
+    addUserV2 = (email, name) => this.db.collection("users").doc(email).set({
+        email:email,
+        name:name
+    });
+
+    getUserByEmailV2 = async (email) => {
+        const query = await this.db.collection("users").doc(email).get();
+        return query.data()
+    };
+
+    // Trips
+
+    getTripsByTimeV2 = async (time) => {
+        const queryTrips = await this.db.collection("TripV2.0").where("time", "==", time).get();
+        return queryTrips.docs.map(doc => doc.data())
+    };
+
+    deleteTripByTimeV2 = async (time) => {
+        const docsTrips = await this.db.collection("TripV2.0").where("time", "==", time).get();
+        docsTrips.docs.map(doc => doc.id).forEach(tripId => this.db.collection("TripV2.0").doc(tripId).delete());
+    };
+
+    getAllTripsV2 = async () => {
+        const docsTrips = await this.db.collection("TripV2.0").get();
+        return docsTrips.docs.map(doc => doc.data())
+    };
+
+    getTripsAsDriverV2 = async (driverEmail) => {
+        const docsTrips = await this.db.collection("TripV2.0").where("driverEmail", "==", driverEmail).get();
+        return docsTrips.docs.map(doc => doc.data())
+    };
+
+    getTripsAsPassengerV2 = async (passengerEmail) => {
+        const docsTrips = await this.db.collection("TripV2.0").where("passengers", "array-contains", passengerEmail).get();
+        return docsTrips.docs.map(doc => doc.data())
+    };
+
+    addTripV2 = async (capacity, routePoints, driverEmail, time, toUniversity) => {
+        return await this.db.collection("TripV2.0").doc(`${driverEmail} ${time}`).set({
+            capacity: capacity,
+            route: routePoints.map(point => new firebase.firestore.GeoPoint(point.lat,point.lng)),
+            driverEmail: driverEmail,
+            passengers: null,
+            passengersWithPoint: null,
+            time: time,
+            toUniversity: toUniversity
+        })
+    };
+
+    //TripRequests
+
+    addTripRequestV2 = async (email, time, point, toUniversity) => {
+        return await this.db.collection("TripRequestv2.0").doc(`${email} ${time}`).set({
+            email: email,
+            time: time,
+            point: new firebase.firestore.GeoPoint(point.lat,point.lng),
+            toUniversity: toUniversity,
+        })
+    };
+
+    getTripRequestsByTimeV2 = async (time) => {
+        const docsTripRequests = await this.db.collection("TripRequestv2.0").where("time", "==", time).get();
+        return docsTripRequests.docs.map(doc => doc.data())
+    };
+
+    getTripRequestsByEmailV2 = async (email) => {
+        const docsTripRequests = await this.db.collection("TripRequestv2.0").where("email", "==", email).get();
+        return docsTripRequests.docs.map(doc => doc.data())
+    };
+
+    deleteTripRequestByTimeV2 = async (time) => {
+        const docsTripRequests = await this.db.collection("TripRequestv2.0").where("time", "==", time).get();
+        docsTripRequests.docs.map(doc => doc.id).forEach(tripRequestId => this.db.collection("TripRequestv2.0").doc(tripRequestId).delete());
+    };
+
+    addPassengerToTripV2 = async (driverEmail,passengerEmail, time, point) => {
+        await this.db.collection("TripV2.0").doc(`${driverEmail} ${time}`).update({
+            passengers: firebase.firestore.FieldValue.arrayUnion(passengerEmail),
+            passengersWithPoint: firebase.firestore.FieldValue.arrayUnion({passengerEmail: passengerEmail, point:point})
+        });
+        return await this.db.collection("TripRequestv2.0").doc(`${passengerEmail} ${time}`).delete()
+    };
+
+
     static getInstance = () => Firebase.firebase;
 }
 

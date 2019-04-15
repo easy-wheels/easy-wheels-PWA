@@ -70,7 +70,73 @@ class prueba{
         //firebase.getTripsAsPassenger("laura.hernandez-g@mail.escuelaing.edu.co").then(a => console.log(a))
         //firebase.getTripsAsPassenger("nicolas.garcia-r@mail.escuelaing.edu.co").then(a=>console.log(a));
         //firebase.getTripRequestsByEmail("nicolas.garcia-r@mail.escuelaing.edu.co").then(a=>console.log(a));
+
+
+
+        // firebase.addUserV2("nicolas.garcia-r@mail.escuelaing.edu.co","Nicolás García").then(resp => console.log(resp));
         //
+        // firebase.addUserV2("sergio.rodriguez-tor@mail.escuelaing.edu.co","Sergio Rodríguez").then(resp => console.log(resp));
+        //
+        //
+        // firebase.getUserByEmailV2("nicolas.garcia-r@mail.escuelaing.edu.co").then(resp => console.log(resp));
+        //
+        // firebase.getTripsByTimeV2("Monday 8:30").then(resp => console.log(resp));
+        //
+        // firebase.deleteTripByTimeV2("Monday 7:00").then(resp => console.log(resp));
+        //
+        // firebase.getTripsByTimeV2("Monday 7:00").then(resp => console.log(resp));
+        //
+        // firebase.getAllTripsV2().then(resp => console.log(resp));
+        //
+        // firebase.getTripsAsDriverV2("nicolas.garcia-r@mail.escuelaing.edu.co").then((resp) => console.log(resp));
+        //
+        // firebase.getTripsAsPassengerV2("sergio.rodriguez-tor@mail.escuelaing.edu.co").then((resp) => console.log(resp));
+        //
+        // firebase.addTripV2(
+        //     5,
+        //     [{lat:5,lng:8},{lat:0,lng:0}],
+        //     "nicolas.garcia-r@mail.escuelaing.edu.co",
+        //     "Monday 7:00",
+        //     false).then((resp) => console.log(resp));
+        //
+        // firebase.addTripV2(
+        //     5,
+        //     [{lat:5,lng:8},{lat:0,lng:0}],
+        //     "nicolas.garcia-r@mail.escuelaing.edu.co",
+        //     "Monday 8:30",
+        //     false).then((resp) => console.log(resp));
+        //
+        // firebase.addTripV2(
+        //     5,
+        //     [{lat:5,lng:8},{lat:0,lng:0}],
+        //     "a@mail.escuelaing.edu.co",
+        //     "Monday 8:30",
+        //     false).then((resp) => console.log(resp));
+
+
+        //
+        //
+        // firebase.addTripRequestV2(
+        //     "sergio.rodriguez-tor@mail.escuelaing.edu.co",
+        //     "Monday 7:00",
+        //     {lat:5,lng:3},
+        //     false
+        // ).then((resp) => console.log(resp));
+        //
+        // firebase.getTripRequestsByTimeV2("Monday 7:00").then((resp) => console.log(resp));
+        //
+        // firebase.getTripRequestsByEmailV2("sergio.rodriguez-tor@mail.escuelaing.edu.co").then((resp) => console.log(resp));
+        //
+        // firebase.deleteTripRequestByTimeV2("Monday 7:00").then((resp) => console.log(resp));
+        //
+        // firebase.addPassengerToTripV2(
+        //     "nicolas.garcia-r@mail.escuelaing.edu.co",
+        //     "sergio.rodriguez-tor@mail.escuelaing.edu.co",
+        //     "Monday 7:00",
+        //     {lat:5,lng:3}
+        // ).then((resp) => console.log(resp));
+
+
     }
 }
 
