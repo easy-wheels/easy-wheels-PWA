@@ -10,7 +10,7 @@
     "@react-firebase/database": "^0.3.10",
     "classnames": "latest",
     "date-fns": "^2.0.0-alpha.27",
-    "firebase": "^4.12.1",
+    "firebase": "latest",
     "geofire": "^5.0.1",
     "google-map-react": "^1.1.2",
     "google-maps-react": "^2.0.2",
