@@ -1,5 +1,6 @@
 {
   "projects": {
-    "easy wheels front end": "easy-wheels-front-end"
+    "easy wheels front end": "easy-wheels-front-end",
+    "default": "easy-wheels-front-end"
   }
 }

@@ -106,26 +106,24 @@ class prueba{
         //     "Monday 8:30",
         //     false).then((resp) => console.log(resp));
         //
-        // firebase.addTripV2(
-        //     5,
-        //     [{lat:5,lng:8},{lat:0,lng:0}],
-        //     "a@mail.escuelaing.edu.co",
-        //     "Monday 8:30",
-        //     false).then((resp) => console.log(resp));
-
-
+/*        firebase.addTripV2(
+            5,
+            [{lat:5,lng:8},{lat:0,lng:0}],
+            "a@mail.escuelaing.edu.co",
+            "Monday 8:30",
+            false).then((resp) => console.log(resp));*/
         //
         //
         // firebase.addTripRequestV2(
         //     "sergio.rodriguez-tor@mail.escuelaing.edu.co",
         //     "Monday 7:00",
-        //     {lat:5,lng:3},
+        //     {lat:4.864758,lng:-74.05091800000001},
         //     false
         // ).then((resp) => console.log(resp));
         //
         // firebase.getTripRequestsByTimeV2("Monday 7:00").then((resp) => console.log(resp));
         //
-        // firebase.getTripRequestsByEmailV2("sergio.rodriguez-tor@mail.escuelaing.edu.co").then((resp) => console.log(resp));
+        // firebase.getTripRequestsByEmailV2("sergio.rodriguez-tor@mail.escuelaing.edu.co").then((resp) => {console.log(resp);console.log(encodeGeohash(resp[0].point))});
         //
         // firebase.deleteTripRequestByTimeV2("Monday 7:00").then((resp) => console.log(resp));
         //
