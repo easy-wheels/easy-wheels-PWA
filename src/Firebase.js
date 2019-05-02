@@ -22,7 +22,6 @@ class Firebase {
         app.initializeApp(config);
         this.auth = app.auth();
         this.db = app.firestore();
-        this.getUserById = this.getUserById.bind(this);
         this.auth.setPersistence(process.env.NODE_ENV === 'test'
             ? app.auth.Auth.Persistence.NONE
             : app.auth.Auth.Persistence.LOCAL);
@@ -73,450 +72,107 @@ class Firebase {
     };
 
     // *** DB API ***
-
     //User
-
-    addUser = (email, name) => this.db.collection("users").add({
+    addUser = (email, name) => this.db.collection("users").doc(email).set({
         email: email,
         name: name
     });
 
-    getNameByEmail = (email) => this.db.collection("users").get()
-        .then(col => {
-            let name;
-            col.docs.map(doc => {
-                if (doc.data().email === email) {
-                    name = doc.data().name
-                }
-            });
-            return name;
-        });
-
-    getIdbyEmail = (email) => this.db.collection("users").get()
-        .then(col => {
-            let id;
-            col.docs.map(doc => {
-                if (doc.data().email === email) {
-                    id = doc.id;
-                }
-            });
-            return id;
-        });
-
-    getUserById = (id) => this.db.collection("users").doc(id).get()
-        .then(doc => {
-            return doc.data();
-        });
-
-    getAllRoutes = () => this.db.collection("routes").get()
-        .then(function (col) {
-            var promises = [];
-            col.docs.map(doc => {
-                promises.push(new Promise(function (resolve, reject) {
-                    Firebase.getInstance().getUserById(doc.data().driver.id.replace(/\s/g, '')).then(driver => {
-                        return ({
-                            toHome: doc.data().toHome,
-                            time: doc.data().time,
-                            driver: driver,
-                            routeId: doc.id,
-                            points: doc.data().points
-                        });
-                    }).then(result => {
-                        resolve(result);
-                    });
-                }));
-            });
-            return Promise.all(promises);
-        });
-
-    getRoutesByEmail = (email) => {
-        return new Promise(function (resolve, reject) {
-            var routes = [];
-            Firebase.getInstance().getAllRoutes().then(data => {
-                data.map(route => {
-                    if (route.driver.email === email) {
-                        routes.push(route);
-                    }
-                });
-                resolve(routes);
-            });
-        })
-    };
-
-    getRouteById = (id) => this.db.collection("routes").doc(id).get()
-        .then(doc => {
-            return new Promise(function (resolve, reject) {
-                Firebase.getInstance().getUserById(doc.data().driver.id.replace(/\s/g, '')).then(driver => {
-                    return ({
-                        toHome: doc.data().toHome,
-                        time: doc.data().time,
-                        driver: driver,
-                        points: doc.data().points,
-                        routeId: id
-                    });
-                }).then(result => {
-                    resolve(result);
-                });
-            })
-        });
-
-    addRoute = (email, day, hour, toHome, points) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().getIdbyEmail(email)
-                .then(id => {
-                    Firebase.getInstance().db.collection("routes").add({
-                        driver: Firebase.getInstance().db.doc("/users/" + id),
-                        time: day + " " + hour,
-                        toHome: toHome,
-                        points: points
-                    })
-                        .then(route => {
-                            resolve(route)
-                        })
-                })
-        })
-    };
-
-    modifyRoute = (id, day, hour, toHome, points) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().db.collection("routes").doc(id).get()
-                .then(route => {
-                    //route.data().driver.id.replace(/\s/g,'')
-                    Firebase.getInstance().modifyPointsToRoute(points, id)
-                        .then(p => {
-                            Firebase.getInstance().db.collection("routes").doc(id)
-                                .set({
-                                    driver: Firebase.getInstance().db.doc("/users/" + route.data().driver.id.replace(/\s/g, '')),
-                                    time: day + " " + hour,
-                                    toHome: toHome
-                                }).then(result => {
-                                resolve(true)
-                            })
-                        })
-                })
-        })
-    };
-
-    deleteRoute = (id) => this.db.collection("routes").doc(id).delete();
-
-    // ** TRIPS
-
-
-    getTripsWithDayAndHour = (day, hour) =>
-        this.db.collection("trips").doc(day + " " + hour).collection("trips").get()
-            .then(function (col) {
-                const promises = [];
-                col.docs.map(doc => {
-                    promises.push(Firebase.getInstance().getTripByIdAndTime(day, hour, doc.id, doc))
-                });
-                return Promise.all(promises);
-            });
-
-    getTripByIdAndTime = (day, hour, id, doc) => {
-        return new Promise(function (resolve, reject) {
-            const data = doc.data();
-            data.tripId = id;
-            Firebase.getInstance().getRouteById(doc.data().route.id)
-                .then(routeData => {
-                    data.route = routeData;
-                    Firebase.getInstance().db.collection("trips/" + day + " " + hour + "/trips/" + id + "/passengers").get()
-                        .then(function (col) {
-                            var promises = [];
-                            col.docs.map(doc1 => {
-                                promises.push(Firebase.getInstance().getPassengerWithDoc(doc1));
-                            });
-                            Promise.all(promises)
-                                .then(result => {
-                                    data.passengers = result;
-                                    resolve(data)
-                                })
-                        })
-                })
-        })
-    };
-
-    getPassengerWithDoc = (doc) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().getUserById(doc.data().passenger.id.replace(/\s/g, ''))
-                .then(user => {
-                    resolve({
-                        passenger: user,
-                        point: {latitude: doc.data().point.latitude, longitude: doc.data().point.longitude}
-                    })
-                })
-        })
-    };
-
-    deleteTripByTimeAndId = (day, hour, id) => this.db.collection("trips").doc(day + " " + hour)
-        .collection("trips").doc(id).delete();
-
-    getAllTrips = () => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().db.collection("trips").get()
-                .then(function (col) {
-                    var ids = [];
-                    col.docs.map(doc => {
-                        ids.push(doc.id.split(" "))
-                    });
-                    var promises = [];
-                    ids.map(id => {
-                        promises.push(Firebase.getInstance().getTripsWithDayAndHour(id[0], id[1]));
-                    });
-                    Promise.all(promises).then(results => {
-                        var trips = [];
-                        results.map(result => {
-                            if (result.length > 0) {
-                                trips.push(result)
-                            }
-                        });
-                        resolve(trips)
-                    })
-                })
-        })
-    };
-
-    getTripsAsDriver = (email) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().getAllTrips()
-                .then(result => {
-                    var trips = [];
-                    result.map(trip => {
-                        if (trip[0].route.driver.email === email) {
-                            trips.push(trip)
-                        }
-                    });
-                    resolve(trips);
-                })
-        })
-    };
-
-    getTripsAsPassenger = (email) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().getAllTrips()
-                .then(trips => {
-                    var tripsAsPassenger = [];
-                    trips.map(trip => {
-                        trip[0].passengers.map(passenger => {
-                            console.log(passenger)
-                            if (passenger.passenger.email === email) {
-                                tripsAsPassenger.push(trip[0])
-                            }
-                        })
-                    });
-                    resolve(tripsAsPassenger)
-                })
-        })
-    };
-
-    completeTrip = (day, hour, id) => this.db.collection("trips").doc(day + " " + hour)
-        .collection("trips").doc(id).delete();
-
-    addTrip = (routeId, capacity) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().getRouteById(routeId)
-                .then(route => {
-                    Firebase.getInstance().db.collection("trips").doc(route.time).collection("trips")
-                        .add({
-                            capacity: capacity,
-                            route: Firebase.getInstance().db.doc("routes/" + routeId)
-                        })
-                        .then(result => resolve(result))
-                });
-        });
-    };
-
-    addPassengerToTrip = (tripId, day, hour, email, point) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().getIdbyEmail(email)
-                .then(userId => {
-                    Firebase.getInstance().db.collection("trips/" + day + " " + hour + "/trips/" + tripId + "/passengers")
-                        .add({
-                            passenger: Firebase.getInstance().db.doc("/users/" + userId),
-                            point: point
-                        })
-                        .then(result => resolve(result))
-                })
-        })
-    };
-
-    //TripRequest
-    addTripRequest = (email, point, day, hour, toHome) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().getIdbyEmail(email)
-                .then(userId => {
-                    Firebase.getInstance().db.collection("tripRequests")
-                        .doc(day + " " + hour)
-                        .collection("tripRequest")
-                        .add({
-                            user: Firebase.getInstance().db.doc("users/" + userId),
-                            point: new firebase.firestore.GeoPoint(point.lat, point.lng),
-                            toHome: toHome
-                        })
-                        .then(result => resolve(result))
-                })
-        })
-    };
-
-    getTripRequestsByDayAndHour = (day, hour) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().db.collection("tripRequests").doc(day + " " + hour)
-                .collection("tripRequest").get()
-                .then(function (col) {
-                    var promises = [];
-                    col.docs.map(doc => {
-                        promises.push(Firebase.getInstance().getTripRequestByDoc(doc, day, hour))
-                    });
-
-                    resolve(Promise.all(promises));
-                })
-        })
-    };
-
-    getTripRequestByDoc = (doc, day, hour) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().getUserById(doc.data().user.id)
-                .then(user => {
-                    resolve(
-                        {
-                            point: {latitude: doc.data().point.latitude, longitude: doc.data().point.longitude},
-                            toHome: doc.data().toHome,
-                            user: user,
-                            tripRequestId: doc.id,
-                            time: day + " " + hour
-                        })
-                })
-        })
-    };
-
-    getTripRequestsByEmail = (email) => {
-        return new Promise(function (resolve, reject) {
-            Firebase.getInstance().db.collection("tripRequests").get()
-                .then(function (col) {
-                    var promises = []
-                    col.docs.map(doc => {
-                        var id = doc.id.split(" ")
-                        promises.push(Firebase.getInstance().getTripRequestsByDayAndHour(id[0], id[1]))
-                    })
-                    Promise.all(promises)
-                        .then(result => {
-                            var tripsByEmail = [];
-                            result.map(array => {
-                                array.map(trip => {
-                                    if (trip.user.email === email)
-                                        tripsByEmail.push(trip)
-                                })
-                            })
-                            resolve(tripsByEmail);
-                        })
-                })
-        })
-    }
-
-    deleteTripRequestByTimeAndId = (day, time, id) => this.db.collection("tripRequests")
-        .doc(day + " " + time).collection("tripRequest").doc(id).delete();
-
-    enroleTripRequest = (day, hour, idTripRequest, idTrip, point) => {
-        return new Promise(function (resolve, reject) {
-            var tripRequest = Firebase.getInstance().db.collection("tripRequests").doc(day + " " + hour)
-                .collection("tripRequest").doc(idTripRequest).get().then(a => {
-                    Firebase.getInstance().getTripRequestByDoc(a, day, hour)
-                        .then(result => {
-                            Firebase.getInstance().addPassengerToTrip(idTrip, day, hour, result.user.email, point)
-                                .then(r => {
-                                    Firebase.getInstance().deleteTripRequestByTimeAndId(day, hour, idTripRequest);
-                                    resolve(r)
-                                })
-                        })
-                });
-
-        })
-    };
-
-    //User
-    addUserV2 = (email, name) => this.db.collection("users").doc(email).set({
-        email: email,
-        name: name
-    });
-
-    getUserByEmailV2 = async (email) => {
+    getUserByEmail = async (email) => {
         const query = await this.db.collection("users").doc(email).get();
         return query.data()
     };
 
     // Trips
 
-    getTripsByTimeV2 = async (time) => {
-        const queryTrips = await this.db.collection("TripV2.0").where("time", "==", time).get();
-        return queryTrips.docs.map(doc => doc.data())
-    };
-
-    deleteTripByTimeV2 = async (time) => {
-        const docsTrips = await this.db.collection("TripV2.0").where("time", "==", time).get();
-        docsTrips.docs.map(doc => doc.id).forEach(tripId => this.db.collection("TripV2.0").doc(tripId).delete());
-    };
-
-    getAllTripsV2 = async () => {
-        const docsTrips = await this.db.collection("TripV2.0").get();
+    getAllTrips = async () => {
+        const docsTrips = await this.db.collection("trips").get();
         return docsTrips.docs.map(doc => doc.data())
     };
 
-    getTripsAsDriverV2 = async (driverEmail) => {
-        const docsTrips = await this.db.collection("TripV2.0").where("driverEmail", "==", driverEmail).get();
+    getTripsAsDriver = async (driverEmail) => {
+        const docsTrips = await this.db.collection("trips").where("driverEmail", "==", driverEmail).get();
         return docsTrips.docs.map(doc => doc.data())
     };
 
-    getTripsAsPassengerV2 = async (passengerEmail) => {
-        const docsTrips = await this.db.collection("TripV2.0").where("passengers", "array-contains", passengerEmail).get();
+    getTripsAsPassenger = async (passengerEmail) => {
+        const docsTrips = await this.db.collection("trips").where("passengers", "array-contains", passengerEmail).get();
         return docsTrips.docs.map(doc => doc.data())
     };
 
-    addTripV2 = async (capacity, routePoints, driverEmail, time, toUniversity) => {
-        return await this.db.collection("TripV2.0").doc(`${driverEmail} ${time}`).set({
+    addTrip = async (capacity, routePoints, driverEmail, day, hour, toUniversity, departureDate, arrivalDate) => {
+        return await this.db.collection("trips").doc(`${driverEmail} ${day} ${hour}`).set({
             capacity: capacity,
             route: routePoints.map(point => new firebase.firestore.GeoPoint(point.lat, point.lng)),
             driverEmail: driverEmail,
             passengers: null,
             passengersWithPoint: null,
-            time: time,
-            toUniversity: toUniversity
+            day: day,
+            hour: hour,
+            toUniversity: toUniversity,
+            departureDate: departureDate,
+            arrivalDate: arrivalDate,
+            full: false
         })
     };
 
     //TripRequests
 
-    addTripRequestV2 = async (email, time, point, toUniversity) => {
-        return await this.db.collection("TripRequestv2.0").doc(`${email} ${time}`).set({
+    addTripRequest = async (email, day, hour, point, toUniversity, arrivalDate) => {
+        return await this.db.collection("tripRequests").doc(`${email} ${day} ${hour}`).set({
             email: email,
-            time: time,
-            point: new firebase.firestore.GeoPoint(point.lat, point.lng),
+            day: day,
+            hour: hour,
+            matched: false,
+            userPosition: new firebase.firestore.GeoPoint(point.lat, point.lng),
             toUniversity: toUniversity,
+            arrivalDate: arrivalDate
         })
     };
 
-    getTripRequestsByTimeV2 = async (time) => {
-        const docsTripRequests = await this.db.collection("TripRequestv2.0").where("time", "==", time).get();
+    getTripRequestsByEmail = async (email) => {
+        const docsTripRequests = await this.db.collection("tripRequests").where("email", "==", email).get();
         return docsTripRequests.docs.map(doc => doc.data())
     };
 
-    getTripRequestsByEmailV2 = async (email) => {
-        const docsTripRequests = await this.db.collection("TripRequestv2.0").where("email", "==", email).get();
-        return docsTripRequests.docs.map(doc => doc.data())
-    };
-
-    deleteTripRequestByTimeV2 = async (time) => {
-        const docsTripRequests = await this.db.collection("TripRequestv2.0").where("time", "==", time).get();
-        docsTripRequests.docs.map(doc => doc.id).forEach(tripRequestId => this.db.collection("TripRequestv2.0").doc(tripRequestId).delete());
-    };
-
-    addPassengerToTripV2 = async (driverEmail, passengerEmail, time, point) => {
-        await this.db.collection("TripV2.0").doc(`${driverEmail} ${time}`).update({
-            passengers: firebase.firestore.FieldValue.arrayUnion(passengerEmail),
-            passengersWithPoint: firebase.firestore.FieldValue.arrayUnion({
-                passengerEmail: passengerEmail,
-                point: point
-            })
+    addPassengerToTrip = async (driverEmail, day, hour, full, passenger) => {
+        await this.db.collection("trips").doc(`${driverEmail} ${day} ${hour}`).update({
+            passengers: firebase.firestore.FieldValue.arrayUnion(passenger.email),
+            passengersWithInfo: firebase.firestore.FieldValue.arrayUnion({
+                passengerEmail: passenger.email,
+                meetingPoint: passenger.meetingPoint,
+                meetingDate: passenger.meetingDate,
+            }),
+            full: full
         });
-        return await this.db.collection("TripRequestv2.0").doc(`${passengerEmail} ${time}`).delete()
+        await this.updateTripRequestMatched(passenger);
+    };
+
+    addPassengersToTrip = async (driverEmail, day, hour, full, passengers) => {
+        await this.db.collection("trips").doc(`${driverEmail} ${day} ${hour}`).update({
+            passengers: passengers.map(passenger => passenger.email),
+            passengersWithInfo: passengers.map(passenger => {
+                return {
+                    passengerEmail: passenger.email,
+                    meetingPoint: passenger.meetingPoint,
+                    meetingDate: passenger.meetingDate,
+                }
+            }),
+            full: full
+
+        });
+        await Promise.all(passengers.map(passenger => this.updateTripRequestMatched(passenger)));
+    };
+
+    updateTripRequestMatched = async (passenger) => {
+        await this.db.collection("tripRequests").doc(`${passenger.email} ${passenger.day} ${passenger.hour}`).update({
+            matched: true,
+            meetingPoint: passenger.meetingPoint,
+            meetingDate: passenger.meetingDate,
+            departureDate: passenger.departureDate,
+            routeWalking: passenger.routeWalking
+
+        })
     };
 
     static getInstance = () => Firebase.firebase;

@@ -1,114 +1,152 @@
+
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const cors = require('cors')({origin: true});
+const {Heap} = require('heap-js');
 
 admin.initializeApp();
 
 const db = admin.firestore();
 
-exports.matchPassengerWithDriver = functions.https.onRequest(async (request, response) => {
-    try {
-        const tripRequest = request.body;
-        const docsTrips = await db.collection("TripV2.0").where("toUniversity", "==", tripRequest.toUniversity)
-            .where("time", "==", tripRequest.time)
-            .where("geoHashes", "array-contains", tripRequest.geoHash).get();
-        const trips = docsTrips.docs.map(doc => doc.data());
-        if(trips.length < 1){
-            response.status(204).send();
-            return;
+exports.matchPassengerWithDriver = functions.https.onRequest((request, response) => {
+    cors(request, response, async () => {
+        try {
+            const {day, hour, toUniversity, geoHash, userPosition} = request.body;
+            const currentDate = new Date();
+            const docsTrips = await db.collection("trips")
+                .where("full", "==", false)
+                .where("toUniversity", "==", toUniversity)
+                .where("day", "==", day)
+                .where("hour", "==", hour)
+                .where("geoHashes", "array-contains", geoHash)
+                .where("departureDate", ">", currentDate).get();
+            const trips = docsTrips.docs.map(doc => doc.data());
+            if (trips.length < 1) {
+                response.status(204).send();
+            } else {
+                let minDistance = maxDistanceInMatch;
+                let minTrip = null;
+                let meetingPoint = null;
+
+                trips.forEach(trip => {
+                    trip.route.forEach(point => {
+                        let currentDistance = distance(point, userPosition);
+                        if (minDistance > currentDistance) {
+                            minTrip = trip;
+                            minDistance = currentDistance;
+                            meetingPoint = point;
+                        }
+                    })
+                });
+                minTrip.meetingPoint = meetingPoint;
+                minTrip.minDistance = minDistance;
+                response.status(200).send(minTrip);
+            }
+        } catch (error) {
+            console.log(error);
+            response.status(500).send(error)
         }
-        let minDistance = maxDistanceInMatch;
-        let minTrip;
-        let meetingPoint;
-
-        trips.forEach(trip => {
-            trip.route.forEach(point => {
-                let currentDistance = distance(point, tripRequest.point);
-                if (minDistance > currentDistance) {
-                    minTrip = trip;
-                    minDistance = currentDistance;
-                    meetingPoint = point;
-                }
-            })
-        });
-        minTrip.meetingPoint = meetingPoint;
-        minTrip.minDistance = minDistance;
-        response.status(200).send(minTrip);
-    } catch (error) {
-        console.log(error);
-        response.status(500).send(error)
-    }
+    })
 });
-
 exports.matchDriverWithPassenger = functions.https.onRequest(async (request, response) => {
-    try {
-        const trip = request.body;
-        let tripRequests = [];
-        const consult = [];
-        await Promise.all(trip.geoHashes.map(async geoHash => {
-            // const geoHashesToQuery = geoQueryWrapper(geoHash);
-            const docsTripRequests = await db.collection("TripRequestv2.0").where("toUniversity", "==", trip.toUniversity)
-                .where("time", "==", trip.time)
-                .where("geoHash", "==", geoHash).get();
-            docsTripRequests.docs.forEach(doc => tripRequests.push(doc.data()));
-        }));
-        if(tripRequests.length < 1){
-            response.status(204).send();
-            return;
+    cors(request, response, async () => {
+        try {
+            const {day, hour, geoHashes, route, availableSeats, toUniversity} = request.body;
+
+            const currentDate = new Date();
+            let tripRequests = [];
+            await Promise.all(geoHashes.map(async geoHash => {
+                const docsTripRequests = await db.collection("tripRequests")
+                    .where("matched", "==", false)
+                    .where("toUniversity", "==", toUniversity)
+                    .where("day", "==", day)
+                    .where("hour", "==", hour)
+                    .where("geoHash", "==", geoHash)
+                    .where("arrivalDate", ">", currentDate).get();
+                docsTripRequests.docs.forEach(doc => tripRequests.push(doc.data()));
+            }));
+            if (tripRequests.length < 1) {
+                response.status(204).send();
+            } else {
+                const passengers = filterPassengers(route, tripRequests, availableSeats);
+                response.status(200).send(passengers);
+            }
+        } catch (error) {
+            console.log(error);
+            response.status(500).send(error)
         }
-        let minDistance = maxDistanceInMatch;
-        let minTripRequest = {};
-        let meetingPoint = {};
-        trip.route.forEach(point => {
-            tripRequests.forEach(tripRequest => {
-                let currentDistance = distance(point, tripRequest.point);
-                if (minDistance > currentDistance) {
-                    minTripRequest = tripRequest;
-                    minDistance = currentDistance;
-                    meetingPoint = point;
-                }
-            })
-        });
-        minTripRequest.meetingPoint = meetingPoint;
-        minTripRequest.minDistance = minDistance;
-        response.status(200).send(minTripRequest);
-    } catch (error) {
-        console.log(error);
-        response.status(500).send(request.body)
-    }
+    })
 });
 
-exports.createGeoHashToTripRequest = functions.firestore
-    .document('TripRequestv2.0/{tripRequestID}')
-    .onCreate((snap, context) => {
-        const point = snap.data().point;
-        return snap.ref.set({
-            geoHash: encodeGeohash(point)
-        }, {merge: true});
-    });
+exports.setGeoHashToTripRequest = functions.https.onRequest(async (request, response) => {
+    cors(request, response, async () => {
+        try {
+            const {email, userPosition, day, hour} = request.body;
+            const geoHash = encodeGeohash(userPosition);
+            await db.collection("tripRequests").doc(`${email} ${day} ${hour}`).set({
+                geoHash: geoHash
+            }, {merge: true});
+            response.status(200).send(geoHash);
+        } catch (error) {
+            console.log(error);
+            response.status(500).send(error)
+        }
+    })
+});
 
-exports.updateGeoHashToTripRequest = functions.firestore
-    .document('TripRequestv2.0/{tripRequestID}')
-    .onUpdate((change, context) => {
-        const pointBefore = change.before.data().point;
-        const pointAfter = change.after.data().point;
-        if (pointBefore === pointAfter) return null;
-        return change.after.ref.set({
-            geoHash: encodeGeohash(pointAfter)
-        }, {merge: true});
-    });
+exports.setGeoHashToTrip = functions.https.onRequest(async (request, response) => {
+    return cors(request, response, async () => {
+        try {
+            const {driverEmail, route, day, hour} = request.body;
+            let geoHashes = route.map(point => encodeGeohash(point));
+            geoHashes = geoHashes.filter((hash, index) => {
+                return !geoHashes.some((otherHash, otherIndex) => index > otherIndex && hash === otherHash);
+            });
+            await db.collection("trips").doc(`${driverEmail} ${day} ${hour}`).set({
+                geoHashes: geoHashes
+            }, {merge: true});
+            response.status(200).send(geoHashes)
+        } catch (error) {
+            console.log(error);
+            response.status(500).send(error)
+        }
+    })
+});
 
-exports.createGeoHashToTrip = functions.firestore
-    .document('TripV2.0/{tripID}')
-    .onCreate((snap, context) => {
-        const route = snap.data().route;
-        let geoHashes = route.map(point => encodeGeohash(point));
-        geoHashes = geoHashes.filter((hash, index) => {
-            return !geoHashes.some((otherHash, otherIndex) => index > otherIndex && hash === otherHash);
+function filterPassengers(route, tripRequests, availableSeats) {
+    const possiblePassengers = [];
+    tripRequests.forEach(tripRequest => {
+        let minDistance = maxDistanceInMatch;
+        let meetingPoint = {};
+        route.forEach(point => {
+            let currentDistance = distance(point, tripRequest.userPosition);
+            if (minDistance > currentDistance) {
+                minDistance = currentDistance;
+                meetingPoint = point;
+            }
         });
-        return snap.ref.set({
-            geoHashes: geoHashes
-        }, {merge: true});
+        possiblePassengers.push({...tripRequest, distance: minDistance, meetingPoint: meetingPoint});
     });
+    const comparator = (a, b) => b.distance - a.distance;
+    return nSmallest(possiblePassengers, availableSeats, comparator)
+
+}
+
+const nSmallest = (array, n, comparator) => {
+    if (array.length <= n) {
+        return array
+    }
+    const heap = array.slice(0, n);
+    Heap.heapify(heap, comparator); //Max-Heap
+    for (let i = n; i < array.length; i++) {
+        if (heap[0] > array[i]) {
+            Heap.heapreplace(heap, array[i], comparator);
+        }
+    }
+    console.log("ans",heap);
+    return heap
+
+};
 
 // Characters used in location geohashes
 const g_BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz";
@@ -126,12 +164,14 @@ Math.log2 = Math.log2 || function (x) {
  * Generates a geohash of the specified precision/string length from the  [latitude, longitude]
  * pair, specified as an array.
  *
- * @param {firebase.firestore.GeoPoint} geoPoint The [latitude, longitude] pair to encode into a geohash.
- * @param {number=} precision The length of the geohash to create. If no precision is
+ * @param {Object} geoPoint - The [latitude, longitude] pair to encode into a geohash.
+ * @param {Object} geoPoint.lat - The latitude.
+ * @param {Object} geoPoint.lng - The longitude.
+ * precision The length of the geohash to create. If no precision is
  * specified, the global default is used.
  * @return {string} The geohash of the inputted geoPoint.
  */
-function encodeGeohash(geoPoint) {
+function encodeGeohash(point) {
     const precision = 6;
     const latitudeRange = {
         min: -90,
@@ -145,6 +185,8 @@ function encodeGeohash(geoPoint) {
     let hashVal = 0;
     let bits = 0;
     let even = 1;
+
+    const geoPoint = toGeoPoint(point);
 
     while (hash.length < precision) {
         const val = even ? geoPoint.longitude : geoPoint.latitude;
@@ -258,14 +300,31 @@ const geohashQuery = function (geohash, bits) {
  */
 const distance = function (location1, location2) {
     const radius = 6371000; // Earth's radius in meters
-    const latDelta = degreesToRadians(location2.latitude - location1.latitude);
-    const lonDelta = degreesToRadians(location2.longitude - location1.longitude);
+
+    const loc1 = toGeoPoint(location1);
+    const loc2 = toGeoPoint(location2);
+
+    const latDelta = degreesToRadians(loc2.latitude - loc1.latitude);
+    const lonDelta = degreesToRadians(loc2.longitude - loc1.longitude);
 
     const a = (Math.sin(latDelta / 2) * Math.sin(latDelta / 2)) +
-        (Math.cos(degreesToRadians(location1.latitude)) * Math.cos(degreesToRadians(location2.latitude)) *
+        (Math.cos(degreesToRadians(loc1.latitude)) * Math.cos(degreesToRadians(loc2.latitude)) *
             Math.sin(lonDelta / 2) * Math.sin(lonDelta / 2));
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return radius * c;
+};
+
+
+const toGeoPoint = (location) => {
+    let geoPoint = location;
+    if (location.lat !== undefined && location.lng !== undefined){
+        geoPoint = {latitude:location.lat, longitude: location.lng}
+    }
+    else if (location.latitude === undefined || location.longitude === undefined){
+        geoPoint = {latitude:location._latitude, longitude: location._longitude}
+    }
+    return geoPoint;
+
 };
