@@ -158,6 +158,7 @@ const availableHours = [
 class MapsContainer extends React.Component {
 
     functionsUrl = "https://us-central1-easy-wheels-front-end.cloudfunctions.net";
+
     // functionsUrl = " http://localhost:5001/easy-wheels-front-end/us-central1";
 
     constructor(props) {
@@ -243,6 +244,16 @@ class MapsContainer extends React.Component {
 
     handleSwitchChange = name => event => {
         this.setState({[name]: event.target.checked});
+    };
+
+    getNameFromEmail = email => {
+        let name, i;
+        i = email.indexOf("-");
+        if (i === -1) i = email.indexOf("@");
+        name = email.slice(0, i);
+        name = name.split(".");
+        name = name.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+        return `${name[0]} ${name[1]}`
     };
 
     //Set aux functions
@@ -349,6 +360,7 @@ class MapsContainer extends React.Component {
 
         const message = `Necesitas caminar ${durationWalking}m`;
         const meetingPointObject = this.convertGeoPointToObject(meetingPoint);
+        meetingPointObject.driverEmail = tripRequest.driverEmail;
         this.setState({
             snackbarOpen: true, message: message, meetingPoint: meetingPointObject, pathRoute: routeWalking
         })
@@ -500,9 +512,9 @@ class MapsContainer extends React.Component {
             let trip = response.data;
             tripRequest.meetingPoint = trip.meetingPoint;
             let departureDateDriver = new Date(trip.departureDate._seconds * 1000);
-            console.log("Date:",departureDateDriver);
             const departurePointDriver = this.convertGeoPointToObject(trip.route[0]);
             let passenger = await this.updateTripRequestWhenMatch(tripRequest, departureDateDriver, departurePointDriver);
+            passenger.driverEmail = trip.driverEmail;
             this.setPassengerDirectionRoute(passenger);
             let full = trip.availableSeats <= 1;
             if (trip.passengers !== null) {
@@ -720,7 +732,7 @@ class MapsContainer extends React.Component {
                                 onClick={this.onMarkerClick}
                                 title={"Punto de encuentro con el conductor"}
                                 position={this.state.meetingPoint}
-                                name={"Punto de encuentro con " + "ToDo Driver name"}
+                                name={"Punto de encuentro con " + this.getNameFromEmail(this.state.meetingPoint.driverEmail)}
                                 description={this.state.message}
                             />
                             : null
@@ -732,8 +744,8 @@ class MapsContainer extends React.Component {
                                     onClick={this.onMarkerClick}
                                     title={i.toString()}
                                     position={passenger.meetingPoint}
-                                    name="passenger name ToDo"
-                                    description={"Pasajero número " + (i + 1)}
+                                    name={this.getNameFromEmail(passenger.email)}
+                                    description={`Lo debes recoger a las ${passenger.meetingDate.toLocaleString()}`}
                                 />);
                         })
                         }
@@ -775,6 +787,7 @@ class MapsContainer extends React.Component {
             </>
         );
     }
+
 }
 
 MapsContainer.propTypes = {
