@@ -100,13 +100,13 @@ class Firebase {
         return docsTrips.docs.map(doc => doc.data())
     };
 
-    addTrip = async (capacity, routePoints, driverEmail, day, hour, toUniversity, departureDate, arrivalDate) => {
+    addTrip = async (availableSeats, routePoints, driverEmail, day, hour, toUniversity, departureDate, arrivalDate) => {
         return await this.db.collection("trips").doc(`${driverEmail} ${day} ${hour}`).set({
-            capacity: capacity,
+            availableSeats: availableSeats,
             route: routePoints.map(point => new firebase.firestore.GeoPoint(point.lat, point.lng)),
             driverEmail: driverEmail,
             passengers: null,
-            passengersWithPoint: null,
+            passengersWithInfo: null,
             day: day,
             hour: hour,
             toUniversity: toUniversity,
@@ -135,8 +135,8 @@ class Firebase {
         return docsTripRequests.docs.map(doc => doc.data())
     };
 
-    addPassengerToTrip = async (driverEmail, day, hour, full, passenger) => {
-        await this.db.collection("trips").doc(`${driverEmail} ${day} ${hour}`).update({
+    addPassengerToTrip = (driverEmail, day, hour, full, passenger) => {
+        this.db.collection("trips").doc(`${driverEmail} ${day} ${hour}`).update({
             passengers: firebase.firestore.FieldValue.arrayUnion(passenger.email),
             passengersWithInfo: firebase.firestore.FieldValue.arrayUnion({
                 passengerEmail: passenger.email,
@@ -145,33 +145,32 @@ class Firebase {
             }),
             full: full
         });
-        await this.updateTripRequestMatched(passenger);
+        this.updateTripRequestMatched(passenger);
     };
 
-    addPassengersToTrip = async (driverEmail, day, hour, full, passengers) => {
-        await this.db.collection("trips").doc(`${driverEmail} ${day} ${hour}`).update({
+    addPassengersToTrip = (driverEmail, day, hour, full, passengers) => {
+        this.db.collection("trips").doc(`${driverEmail} ${day} ${hour}`).update({
             passengers: passengers.map(passenger => passenger.email),
             passengersWithInfo: passengers.map(passenger => {
                 return {
                     passengerEmail: passenger.email,
-                    meetingPoint: passenger.meetingPoint,
+                    meetingPoint: new firebase.firestore.GeoPoint(passenger.meetingPoint.lat, passenger.meetingPoint.lng),
                     meetingDate: passenger.meetingDate,
                 }
             }),
             full: full
 
         });
-        await Promise.all(passengers.map(passenger => this.updateTripRequestMatched(passenger)));
+        passengers.forEach(passenger => this.updateTripRequestMatched(passenger));
     };
 
     updateTripRequestMatched = async (passenger) => {
         await this.db.collection("tripRequests").doc(`${passenger.email} ${passenger.day} ${passenger.hour}`).update({
             matched: true,
-            meetingPoint: passenger.meetingPoint,
+            meetingPoint: new firebase.firestore.GeoPoint(passenger.meetingPoint.lat, passenger.meetingPoint.lng),
             meetingDate: passenger.meetingDate,
             departureDate: passenger.departureDate,
-            routeWalking: passenger.routeWalking
-
+            routeWalking: passenger.routeWalking.map(point => new firebase.firestore.GeoPoint(point.lat, point.lng)),
         })
     };
 

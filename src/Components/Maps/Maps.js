@@ -63,27 +63,27 @@ const styles = {
 };
 const availableSeats = [
     {
-        value: '1',
+        value: 1,
         label: '1 Cupo',
     },
     {
-        value: '2',
+        value: 2,
         label: '2 Cupos',
     },
     {
-        value: '3',
+        value: 3,
         label: '3 Cupos',
     },
     {
-        value: '5',
+        value: 5,
         label: '5 Cupos',
     },
     {
-        value: '6',
+        value: 6,
         label: '6 Cupos',
     },
     {
-        value: '7',
+        value: 7,
         label: '7 Cupos',
     },
 
@@ -441,8 +441,8 @@ class MapsContainer extends React.Component {
             console.log(passengers);
             this.setState({snackbarOpen: true, message: message, possiblePassengers: passengers});
 
-            const full = trip.availableSeats === passengers.length;
-            await firebase.addPassengersToTrip(trip.driverEmail, trip.day, trip.hour, full, passengers);
+            const full = trip.availableSeats >= passengers.length;
+            firebase.addPassengersToTrip(trip.driverEmail, trip.day, trip.hour, full, passengers);
 
         } else {
             const message = "No hemos encontrado pasajeros cerca a tu ruta, pero te informaremos cuando los haya";
@@ -504,7 +504,7 @@ class MapsContainer extends React.Component {
             const departurePointDriver = this.convertGeoPointToObject(trip.route[0]);
             let passenger = await this.updateTripRequestWhenMatch(tripRequest, departureDateDriver, departurePointDriver);
             this.setPassengerDirectionRoute(passenger);
-            let full = false;
+            let full = trip.availableSeats <= 1;
             if (trip.passengers !== null) {
                 full = trip.availableSeats === trip.passengers.length + 1;
             }
