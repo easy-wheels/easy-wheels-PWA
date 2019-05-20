@@ -31,7 +31,7 @@ export function register(config) {
       return;
     }
 
-    let dataCacheName = 'EasyWheelsV3';
+    let dataCacheName = 'EasyWheelsV3.1.1';
 
     window.addEventListener('install', () => {
       console.log("install!!");

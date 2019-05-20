@@ -1,4 +1,3 @@
-
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const cors = require('cors')({origin: true});
@@ -127,7 +126,14 @@ function filterPassengers(route, tripRequests, availableSeats) {
         });
         possiblePassengers.push({...tripRequest, distance: minDistance, meetingPoint: meetingPoint});
     });
-    const comparator = (a, b) => b.distance - a.distance;
+
+    console.log("possible", possiblePassengers);
+    const comparator = (a, b) => {
+        if(a === undefined || b === undefined){
+            return 0
+        }
+        return b.distance - a.distance;
+    };
     return nSmallest(possiblePassengers, availableSeats, comparator)
 
 }
@@ -139,11 +145,11 @@ const nSmallest = (array, n, comparator) => {
     const heap = array.slice(0, n);
     Heap.heapify(heap, comparator); //Max-Heap
     for (let i = n; i < array.length; i++) {
-        if (heap[0] > array[i]) {
+        if (comparator(heap[0], array[i]) < 0) {
             Heap.heapreplace(heap, array[i], comparator);
         }
     }
-    console.log("ans",heap);
+    console.log("ans", heap);
     return heap
 
 };
@@ -319,11 +325,10 @@ const distance = function (location1, location2) {
 
 const toGeoPoint = (location) => {
     let geoPoint = location;
-    if (location.lat !== undefined && location.lng !== undefined){
-        geoPoint = {latitude:location.lat, longitude: location.lng}
-    }
-    else if (location.latitude === undefined || location.longitude === undefined){
-        geoPoint = {latitude:location._latitude, longitude: location._longitude}
+    if (location.lat !== undefined && location.lng !== undefined) {
+        geoPoint = {latitude: location.lat, longitude: location.lng}
+    } else if (location.latitude === undefined || location.longitude === undefined) {
+        geoPoint = {latitude: location._latitude, longitude: location._longitude}
     }
     return geoPoint;
 
