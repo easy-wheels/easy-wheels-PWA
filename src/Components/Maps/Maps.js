@@ -453,7 +453,8 @@ class MapsContainer extends React.Component {
             console.log(passengers);
             this.setState({snackbarOpen: true, message: message, possiblePassengers: passengers});
 
-            const full = trip.availableSeats >= passengers.length;
+            const full = trip.availableSeats <= passengers.length;
+
             firebase.addPassengersToTrip(trip.driverEmail, trip.day, trip.hour, full, passengers);
 
         } else {
@@ -472,6 +473,8 @@ class MapsContainer extends React.Component {
         const durationWalking = pathRouteWalking.legs[0].duration.value;
         const departureDate = DateUtils.getDateMinusSeconds(meetingDate, durationWalking);
         const routeWalking = pathRouteWalking.overview_path.map(latLng => this.convertLatLngToObject(latLng));
+        tripRequest.meetingPoint = meetingPoint;
+        tripRequest.userPosition = userPosition;
         return {
             ...tripRequest,
             departureDate: departureDate,

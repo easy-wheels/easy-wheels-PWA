@@ -140,7 +140,7 @@ class Firebase {
             passengers: firebase.firestore.FieldValue.arrayUnion(passenger.email),
             passengersWithInfo: firebase.firestore.FieldValue.arrayUnion({
                 passengerEmail: passenger.email,
-                meetingPoint: passenger.meetingPoint,
+                meetingPoint: new firebase.firestore.GeoPoint(passenger.meetingPoint.lat, passenger.meetingPoint.lng),
                 meetingDate: passenger.meetingDate,
             }),
             full: full
